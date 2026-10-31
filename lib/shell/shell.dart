@@ -373,9 +373,14 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
     }
   }
 
+  /// Closes the window the normal way, so the runner tears down the engine
+  /// while its message loop still runs. `windowManager.destroy()` only posts
+  /// a quit message, and the teardown after the loop hangs with the window
+  /// still on screen.
   Future<void> _quit() async {
     await widget.storage.flush(_store);
-    await windowManager.destroy();
+    await windowManager.hide();
+    await windowManager.close();
   }
 
   Future<void> _openPanel(_Panel panel) async {

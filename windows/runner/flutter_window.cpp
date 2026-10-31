@@ -26,6 +26,9 @@ bool FlutterWindow::OnCreate() {
   }
   RegisterPlugins(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
+  native_bridge_ = std::make_unique<NativeBridge>(
+      flutter_controller_->engine()->messenger(), GetHandle(),
+      flutter_controller_->view()->GetNativeWindow());
 
   // The window stays hidden until Dart has sized and placed it
   // (windowManager.show() in main.dart).
@@ -40,6 +43,7 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  native_bridge_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }

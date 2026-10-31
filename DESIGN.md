@@ -220,7 +220,7 @@ A strip-sized Add Mint pill with a 1.5px Add Green outline, a 20px add icon and 
 - **Leave:** after a 140ms grace period, the rows fade out, the scroll returns to the pinned item over 320ms, and the window shrinks.
 - **Scroll:** wheel steps one row per 40 units of scroll delta, settling over 320ms with expo-out. The add slots bound the range.
 - **Pin and return:** clicking a row pins it and glides it into the strip position. Middle-click returns to the pinned item.
-- **Drag:** a plain drag on the strip moves the window. Long press is reserved for tag drag.
+- **Drag:** a plain drag on the strip moves the window. Long press lifts the item for tag drag: the window dims to 40% and the tag zones fade in beside it.
 
 ### Not designed yet
 These are open, not specified: the ring-close motion when a countdown reaches zero (today the strip simply switches to the red pill), the add-slot action, inline editing, tag drag and its drop zones, the detailed window, global hotkey feedback, and any persistence-related UI.

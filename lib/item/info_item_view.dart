@@ -16,6 +16,7 @@ class InfoItemView extends StatelessWidget {
     this.onTimeTap,
     this.lifted = true,
     this.fade = 1,
+    this.ring,
   });
 
   final InfoItem item;
@@ -29,6 +30,9 @@ class InfoItemView extends StatelessWidget {
   /// near-opaque so the desktop never reads through; the ink fades and the
   /// lap pales toward its own track, keeping its state hue.
   final double fade;
+
+  /// Outline for the selected row or a drop target.
+  final Color? ring;
 
   @override
   Widget build(BuildContext context) {
@@ -45,96 +49,124 @@ class InfoItemView extends StatelessWidget {
       TimeState.ended => Color.lerp(OH.endTrack, OH.endRing, fade)!,
     };
 
-    return Container(
-      width: OH.stripWidth,
-      height: OH.stripHeight,
-      decoration: ShapeDecoration(
-        color: ground.withValues(alpha: 0.94 + 0.06 * fade),
-        shape: const StadiumBorder(),
-        shadows: lifted ? OH.lift : const [],
-      ),
-      child: ClipPath(
-        clipper: const ShapeBorderClipper(shape: StadiumBorder()),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (time != null && !ended)
-              CustomPaint(
-                painter: LapPainter(
-                  remaining: time.remaining(now),
-                  state: state!,
-                  fade: fade,
-                ),
+    return MetaData(
+      metaData: ItemTag(item.id),
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: OH.stripWidth,
+        height: OH.stripHeight,
+        decoration: ShapeDecoration(
+          color: ground.withValues(alpha: 0.94 + 0.06 * fade),
+          shape: const StadiumBorder(),
+          shadows: lifted ? OH.lift : const [],
+        ),
+        foregroundDecoration: ring == null
+            ? null
+            : ShapeDecoration(
+                shape: StadiumBorder(side: BorderSide(color: ring!, width: 2)),
               ),
-            Opacity(
-              opacity: fade,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: OH.padStart,
-                  right: OH.padEnd,
+        child: ClipPath(
+          clipper: const ShapeBorderClipper(shape: StadiumBorder()),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (time != null && !ended)
+                CustomPaint(
+                  painter: LapPainter(
+                    remaining: time.remaining(now),
+                    state: state!,
+                    fade: fade,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    _Disc(item: item),
-                    const SizedBox(width: OH.gap),
-                    Expanded(
-                      child: Text(
-                        item.text,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: ended
-                            ? OH.itemText.copyWith(color: endInk(fade))
-                            : OH.itemText,
+              Opacity(
+                opacity: fade,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: OH.padStart,
+                    right: OH.padEnd,
+                  ),
+                  child: Row(
+                    children: [
+                      ItemDisc(item: item),
+                      const SizedBox(width: OH.gap),
+                      Expanded(
+                        child: Text(
+                          item.text.isEmpty ? '空白信息' : item.text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: ended
+                              ? OH.itemText.copyWith(color: endInk(fade))
+                              : item.text.isEmpty
+                              ? OH.itemText.copyWith(color: OH.inkSoft)
+                              : OH.itemText,
+                        ),
                       ),
-                    ),
-                    if (time != null) ...[
-                      const SizedBox(width: OH.unit * 2),
-                      _TimeCell(
-                        remaining: time.remaining(now),
-                        state: state!,
-                        fade: fade,
-                        onTap: onTimeTap,
-                      ),
+                      if (time != null) ...[
+                        const SizedBox(width: OH.unit * 2),
+                        _TimeCell(
+                          remaining: time.remaining(now),
+                          state: state!,
+                          fade: fade,
+                          onTap: onTimeTap,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+/// Marks an item's pill so a drop from another app can find the item under
+/// the pointer.
+class ItemTag {
+  const ItemTag(this.id);
+  final String id;
+}
+
 /// White on the full red pill; red once the pill has paled toward its track.
 Color endInk(double fade) => Color.lerp(OH.endRing, OH.endInk, fade)!;
 
-class _Disc extends StatelessWidget {
-  const _Disc({required this.item});
+/// The item's image, or its glyph on a grey disc.
+class ItemDisc extends StatelessWidget {
+  const ItemDisc({super.key, required this.item, this.size = OH.disc});
 
   final InfoItem item;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     final image = item.image;
     return Container(
-      width: OH.disc,
-      height: OH.disc,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: OH.discFill,
         image: image == null
             ? null
-            : DecorationImage(image: image, fit: BoxFit.cover),
+            : DecorationImage(
+                image: MemoryImage(image),
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.medium,
+              ),
       ),
       alignment: Alignment.center,
       child: image == null
-          ? Icon(item.icon ?? Icons.notes_rounded, size: 20, color: OH.ink)
+          ? Icon(item.glyph, size: size * 0.56, color: OH.ink)
           : null,
     );
   }
 }
+
+/// Pointer ids that went down on a time cell. Row gestures skip these so a
+/// quick double click on the time does not also open the list.
+final Set<int> timeCellPointers = {};
 
 /// Remaining time; click to pause or resume. The pause/play glyph appears
 /// on hover and stays while paused.
@@ -195,39 +227,48 @@ class _TimeCellState extends State<_TimeCell>
         state == TimeState.paused || (_hover && state == TimeState.running);
     final interactive = widget.onTap != null && state != TimeState.ended;
 
-    return MouseRegion(
-      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: interactive ? widget.onTap : null,
-        child: Semantics(
-          button: interactive,
-          label: switch (state) {
-            TimeState.running => '暂停倒计时',
-            TimeState.paused => '继续倒计时',
-            TimeState.ended => '倒计时已结束',
-          },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedOpacity(
-                opacity: showGlyph ? 1 : 0,
-                duration: OH.quick,
-                child: AnimatedIcon(
-                  icon: AnimatedIcons.pause_play,
-                  progress: _morph,
-                  size: 18,
-                  color: ink,
+    return Listener(
+      onPointerDown: interactive
+          ? (e) {
+              timeCellPointers
+                ..clear()
+                ..add(e.pointer);
+            }
+          : null,
+      child: MouseRegion(
+        cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: interactive ? widget.onTap : null,
+          child: Semantics(
+            button: interactive,
+            label: switch (state) {
+              TimeState.running => '暂停倒计时',
+              TimeState.paused => '继续倒计时',
+              TimeState.ended => '倒计时已结束',
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedOpacity(
+                  opacity: showGlyph ? 1 : 0,
+                  duration: OH.quick,
+                  child: AnimatedIcon(
+                    icon: AnimatedIcons.pause_play,
+                    progress: _morph,
+                    size: 18,
+                    color: ink,
+                  ),
                 ),
-              ),
-              const SizedBox(width: OH.unit),
-              Text(
-                formatRemaining(widget.remaining),
-                style: OH.timeText.copyWith(color: ink),
-              ),
-            ],
+                const SizedBox(width: OH.unit),
+                Text(
+                  formatRemaining(widget.remaining),
+                  style: OH.timeText.copyWith(color: ink),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,0 +1,471 @@
+import 'package:flutter/material.dart';
+
+import '../item/info_item.dart';
+import '../item/info_item_view.dart';
+import '../item/item_store.dart';
+import '../theme/tokens.dart';
+
+/// Detached panel beside the list that edits every part of one item: text,
+/// icon or image, and tags.
+class SideEditor extends StatefulWidget {
+  const SideEditor({
+    super.key,
+    required this.item,
+    required this.store,
+    required this.onClose,
+    required this.onTimeDial,
+    this.focusText = false,
+  });
+
+  static const double width = 300;
+
+  final InfoItem item;
+  final ItemStore store;
+  final VoidCallback onClose;
+  final VoidCallback onTimeDial;
+  final bool focusText;
+
+  @override
+  State<SideEditor> createState() => _SideEditorState();
+}
+
+class _SideEditorState extends State<SideEditor> {
+  late final _text = TextEditingController(text: widget.item.text);
+  final _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.focusText) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _focus.requestFocus();
+        _text.selection = TextSelection.collapsed(offset: _text.text.length);
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(SideEditor old) {
+    super.didUpdateWidget(old);
+    if (old.item != widget.item) _text.text = widget.item.text;
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final item = widget.item;
+    final store = widget.store;
+    // Text appended by a paste shows up unless the user is mid-typing.
+    if (!_focus.hasFocus && _text.text != item.text) _text.text = item.text;
+
+    return Container(
+      width: SideEditor.width,
+      padding: const EdgeInsets.all(OH.unit * 4),
+      decoration: const ShapeDecoration(
+        color: OH.ground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(OH.unit * 5)),
+        ),
+        shadows: OH.lift,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              ItemDisc(item: item, size: 28),
+              const SizedBox(width: OH.unit * 2),
+              Expanded(child: Text('编辑信息', style: _title)),
+              _IconButton(
+                icon: Icons.close_rounded,
+                label: '关闭',
+                onTap: widget.onClose,
+              ),
+            ],
+          ),
+          const SizedBox(height: OH.unit * 3),
+          TextField(
+            controller: _text,
+            focusNode: _focus,
+            minLines: 2,
+            maxLines: 5,
+            style: OH.itemText.copyWith(height: 1.45),
+            cursorColor: OH.ink,
+            onChanged: (t) => store.setText(item, t),
+            decoration: InputDecoration(
+              hintText: '写点什么',
+              hintStyle: const TextStyle(color: OH.inkSoft),
+              filled: true,
+              fillColor: OH.discFill,
+              contentPadding: const EdgeInsets.all(OH.unit * 3),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(OH.unit * 3),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(OH.unit * 3),
+                borderSide: const BorderSide(color: OH.ink, width: 1.5),
+              ),
+            ),
+          ),
+          const SizedBox(height: OH.unit * 4),
+          _Section('图标'),
+          Wrap(
+            spacing: OH.unit * 1.5,
+            runSpacing: OH.unit * 1.5,
+            children: [
+              for (final e in itemIcons.entries)
+                _Glyph(
+                  icon: e.value,
+                  selected: item.image == null && item.icon == e.key,
+                  onTap: () => store.setIcon(item, e.key),
+                ),
+            ],
+          ),
+          const SizedBox(height: OH.unit * 2),
+          if (item.image != null)
+            Row(
+              children: [
+                ItemDisc(item: item, size: 32),
+                const SizedBox(width: OH.unit * 2),
+                Expanded(child: Text('图片图标', style: _body)),
+                _TextButton(
+                  label: '移除图片',
+                  onTap: () => store.setImage(item, null),
+                ),
+              ],
+            )
+          else
+            Text('拖入图片文件或链接、或选中后粘贴图片，即可设为图标', style: _hint),
+          const SizedBox(height: OH.unit * 4),
+          _Section('标签'),
+          Wrap(
+            spacing: OH.unit * 2,
+            runSpacing: OH.unit * 2,
+            children: [
+              _Toggle(
+                label: '下沉',
+                icon: Icons.south_rounded,
+                on: item.sunk,
+                onTap: () => store.setSunk(item, !item.sunk),
+              ),
+              _Toggle(
+                label: '详细',
+                icon: Icons.unfold_more_rounded,
+                on: item.detail,
+                onTap: () => store.setDetail(item, !item.detail),
+              ),
+            ],
+          ),
+          const SizedBox(height: OH.unit * 3),
+          _TimeRow(item: item, store: store, onDial: widget.onTimeDial),
+          const SizedBox(height: OH.unit * 4),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _TextButton(
+              label: '删除这条信息',
+              icon: Icons.delete_outline_rounded,
+              onTap: () {
+                widget.onClose();
+                store.remove(item);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final TextStyle _title = OH.itemText.copyWith(fontWeight: FontWeight.w700);
+final TextStyle _body = OH.itemText.copyWith(fontSize: 14);
+final TextStyle _hint = OH.itemText.copyWith(
+  fontSize: 12,
+  color: OH.inkSoft,
+  height: 1.4,
+);
+
+class _Section extends StatelessWidget {
+  const _Section(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: OH.unit * 2),
+    child: Text(label, style: _hint.copyWith(fontWeight: FontWeight.w700)),
+  );
+}
+
+class _TimeRow extends StatelessWidget {
+  const _TimeRow({
+    required this.item,
+    required this.store,
+    required this.onDial,
+  });
+
+  final InfoItem item;
+  final ItemStore store;
+  final VoidCallback onDial;
+
+  @override
+  Widget build(BuildContext context) {
+    final time = item.time;
+    if (time == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: _Toggle(
+          label: '时间',
+          icon: Icons.timer_outlined,
+          on: false,
+          onTap: onDial,
+        ),
+      );
+    }
+    final state = time.state(store.now);
+    final ink = switch (state) {
+      TimeState.running => OH.ink,
+      TimeState.paused => OH.pauseInk,
+      TimeState.ended => OH.endRing,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              formatRemaining(time.remaining(store.now)),
+              style: OH.timeText.copyWith(color: ink),
+            ),
+            const SizedBox(width: OH.unit * 2),
+            Text(switch (state) {
+              TimeState.running => '计时中',
+              TimeState.paused => item.sunk ? '已下沉，暂停' : '已暂停',
+              TimeState.ended => '已结束',
+            }, style: _hint),
+            const Spacer(),
+            if (state != TimeState.ended && !item.sunk)
+              _IconButton(
+                icon: state == TimeState.running
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                label: state == TimeState.running ? '暂停' : '继续',
+                onTap: () => store.toggleTime(item),
+              ),
+            _IconButton(icon: Icons.tune_rounded, label: '调整时间', onTap: onDial),
+            _IconButton(
+              icon: Icons.close_rounded,
+              label: '移除时间',
+              onTap: () => store.clearTime(item),
+            ),
+          ],
+        ),
+        const SizedBox(height: OH.unit * 2),
+        KindSwitch(
+          kind: time.kind,
+          onChanged: (k) => store.setTime(item, time.remaining(store.now), k),
+        ),
+      ],
+    );
+  }
+}
+
+/// Reminder / Timer choice, shared with the time dial.
+class KindSwitch extends StatelessWidget {
+  const KindSwitch({super.key, required this.kind, required this.onChanged});
+
+  final TimeKind kind;
+  final ValueChanged<TimeKind> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget option(TimeKind k, String label, String tip) {
+      final on = k == kind;
+      return Expanded(
+        child: Tooltip(
+          message: tip,
+          waitDuration: const Duration(milliseconds: 600),
+          child: GestureDetector(
+            onTap: () => onChanged(k),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: AnimatedContainer(
+                duration: OH.quick,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: on ? OH.ground : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: on ? OH.lift.sublist(1) : null,
+                ),
+                child: Text(
+                  label,
+                  style: _body.copyWith(color: on ? OH.ink : OH.inkSoft),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: OH.discFill,
+        borderRadius: BorderRadius.circular(19),
+      ),
+      child: Row(
+        children: [
+          option(TimeKind.reminder, 'Reminder', '一直计时，结束时浮出提醒'),
+          option(TimeKind.timer, 'Timer', '只在浮窗显示时计时'),
+        ],
+      ),
+    );
+  }
+}
+
+class _Glyph extends StatelessWidget {
+  const _Glyph({
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: OH.quick,
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: selected ? OH.ink : OH.discFill,
+          ),
+          child: Icon(icon, size: 17, color: selected ? OH.ground : OH.ink),
+        ),
+      ),
+    );
+  }
+}
+
+class _Toggle extends StatelessWidget {
+  const _Toggle({
+    required this.label,
+    required this.icon,
+    required this.on,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool on;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: OH.quick,
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: OH.unit * 3),
+          decoration: BoxDecoration(
+            color: on ? OH.ink : OH.discFill,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: on ? OH.ground : OH.ink),
+              const SizedBox(width: OH.unit * 1.5),
+              Text(
+                label,
+                style: _body.copyWith(color: on ? OH.ground : OH.ink),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _IconButton extends StatelessWidget {
+  const _IconButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      waitDuration: const Duration(milliseconds: 600),
+      child: InkResponse(
+        onTap: onTap,
+        radius: 18,
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: Icon(icon, size: 18, color: OH.ink, semanticLabel: label),
+        ),
+      ),
+    );
+  }
+}
+
+class _TextButton extends StatelessWidget {
+  const _TextButton({required this.label, required this.onTap, this.icon});
+
+  final String label;
+  final IconData? icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(OH.unit * 2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: OH.unit * 2,
+          vertical: OH.unit * 1.5,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16, color: OH.inkSoft),
+              const SizedBox(width: OH.unit),
+            ],
+            Text(label, style: _body.copyWith(color: OH.inkSoft)),
+          ],
+        ),
+      ),
+    );
+  }
+}

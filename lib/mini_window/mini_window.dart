@@ -45,6 +45,15 @@ class MiniWindow extends StatefulWidget {
   /// hover and scrolling pause.
   final bool frozen;
 
+  /// Where the strip's block starts: at the anchor, raised when the inline
+  /// editor or a detail card would run off the bottom of the screen. The
+  /// anchor itself stays, so the strip returns once the block shrinks.
+  static double topFor(double anchorY, double block, double screenHeight) {
+    const edge = OH.unit * 2;
+    if (block <= OH.stripHeight) return anchorY;
+    return math.max(edge, math.min(anchorY, screenHeight - block - edge));
+  }
+
   @override
   State<MiniWindow> createState() => MiniWindowState();
 }
@@ -277,18 +286,28 @@ class MiniWindowState extends State<MiniWindow>
   Color? _ringFor(InfoItem item) =>
       widget.dropTarget == item.id ? OH.ink : null;
 
-  double get _stripBlock {
+  double get _stripBlock => _blockFor(expanded: _expanded);
+
+  double _blockFor({required bool expanded}) {
     if (_editing != null) return InlineEditor.height;
     final pinned = _store.pinned;
-    if (!_expanded && pinned != null && pinned.detail) {
+    if (!expanded && pinned != null && pinned.detail) {
       return OH.stripHeight + widget.config.detailHeight;
     }
     return OH.stripHeight;
   }
 
+  // From the resting block, so hovering a raised detail card (which folds
+  // it to the strip) leaves the strip where it is.
+  double get _top => MiniWindow.topFor(
+    widget.anchor.dy,
+    _blockFor(expanded: false),
+    MediaQuery.sizeOf(context).height,
+  );
+
   /// Rows that fit on screen above and below the strip.
   (int, int) get _room {
-    final top = widget.anchor.dy;
+    final top = _top;
     final bottom = MediaQuery.sizeOf(context).height - top - OH.stripHeight;
     return (
       math.max(0, top ~/ OH.rowPitch),
@@ -326,13 +345,12 @@ class MiniWindowState extends State<MiniWindow>
         ? down * OH.rowPitch
         : (alertsBelow ? alertRows : 0);
     final block = _stripBlock;
-    final anchor = widget.anchor;
 
     return Stack(
       children: [
         Positioned(
-          left: anchor.dx,
-          top: anchor.dy - above,
+          left: widget.anchor.dx,
+          top: _top - above,
           width: OH.stripWidth,
           height: above + block + below,
           child: HitRegion(

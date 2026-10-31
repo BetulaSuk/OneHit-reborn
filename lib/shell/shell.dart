@@ -169,7 +169,15 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
 
   // Geometry --------------------------------------------------------------
 
-  Rect get _stripRect => _anchor & const Size(OH.stripWidth, OH.stripHeight);
+  /// The strip with its detail card, where the minimal window draws it.
+  Rect get _stripRect {
+    final pinned = _store.pinned;
+    final height = pinned != null && pinned.detail
+        ? OH.stripHeight + _config.detailHeight
+        : OH.stripHeight;
+    final top = MiniWindow.topFor(_anchor.dy, height, _work.height);
+    return Offset(_anchor.dx, top) & Size(OH.stripWidth, height);
+  }
 
   /// The list opens so that its first row lands where the strip was.
   Rect get _listRect {
@@ -205,10 +213,10 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
         final moved = _keepOn(rect.topLeft + delta, rect.size);
         _anchor += moved - rect.topLeft;
       } else {
-        _anchor = _keepOn(
-          _anchor + delta,
-          const Size(OH.stripWidth, OH.stripHeight),
-        );
+        // Dragging a raised detail card starts from where it is drawn and
+        // keeps the whole card on screen.
+        final rect = _stripRect;
+        _anchor = _keepOn(rect.topLeft + delta, rect.size);
       }
     });
   }

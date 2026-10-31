@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config.dart';
+import '../strings.dart';
 import '../theme/controls.dart';
 import '../theme/tokens.dart';
 import 'keys.dart';
@@ -22,7 +23,7 @@ class PrefixHint extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PanelSection('按一个键'),
+          PanelSection(strings.pressAKey),
           for (final c in Command.values)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: OH.unit / 2),

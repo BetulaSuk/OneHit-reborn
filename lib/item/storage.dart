@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../config.dart';
+import '../strings.dart';
 import 'info_item.dart';
 import 'item_store.dart';
 
@@ -91,7 +92,7 @@ class Storage {
 List<InfoItem> firstRunItems() => [
   InfoItem(
     id: 'tip-hover',
-    text: '把鼠标移上来，滚轮翻看其他信息',
+    text: strings.tipHover,
     icon: 'idea',
     time: TimeTag(
       kind: TimeKind.timer,
@@ -99,8 +100,8 @@ List<InfoItem> firstRunItems() => [
       running: false,
     ),
   ),
-  InfoItem(id: 'tip-edit', text: '右键一条信息即可编辑文字', icon: 'notes'),
-  InfoItem(id: 'tip-tag', text: '长按并拖动信息，拖到选区添加标签', icon: 'flag'),
-  InfoItem(id: 'tip-list', text: '双击浮窗打开信息列表', icon: 'event'),
-  InfoItem(id: 'tip-image', text: '拖入图片或粘贴图片来设置图标', icon: 'star'),
+  InfoItem(id: 'tip-edit', text: strings.tipEdit, icon: 'notes'),
+  InfoItem(id: 'tip-tag', text: strings.tipTag, icon: 'flag'),
+  InfoItem(id: 'tip-list', text: strings.tipList, icon: 'event'),
+  InfoItem(id: 'tip-image', text: strings.tipImage, icon: 'star'),
 ];

@@ -11,6 +11,7 @@ import '../item/item_store.dart';
 import '../shell/beside.dart';
 import '../shell/regions.dart';
 import '../shell/shell_actions.dart';
+import '../strings.dart';
 import '../theme/tokens.dart';
 
 /// The detailed window: every item, floating ones first and sunk ones
@@ -138,7 +139,7 @@ class _ListWindowState extends State<ListWindow> {
                 child: Row(
                   children: [
                     Text(
-                      '全部信息',
+                      strings.allItems,
                       style: OH.itemText.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(width: OH.unit * 2),
@@ -148,7 +149,7 @@ class _ListWindowState extends State<ListWindow> {
                     ),
                     const Spacer(),
                     Tooltip(
-                      message: '缩回浮窗（双击标题栏）',
+                      message: strings.shrink,
                       waitDuration: const Duration(milliseconds: 600),
                       child: InkResponse(
                         onTap: actions.openMini,
@@ -185,7 +186,7 @@ class _ListWindowState extends State<ListWindow> {
                 itemBuilder: (context, i) => Align(
                   alignment: Alignment.topCenter,
                   child: i == items.length
-                      ? ItemGestures(onTap: _create, child: const AddSlot())
+                      ? ItemGestures(onTap: _create, child: AddSlot())
                       : _row(items[i]),
                 ),
               ),

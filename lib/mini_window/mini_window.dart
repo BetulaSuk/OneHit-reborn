@@ -400,7 +400,7 @@ class MiniWindowState extends State<MiniWindow>
         item: null,
         strip: true,
         onTap: _create,
-        child: const AddSlot(),
+        child: AddSlot(),
       );
     } else {
       strip = _gestures(

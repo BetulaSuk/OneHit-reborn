@@ -19,6 +19,7 @@ import '../mini_window/mini_window.dart';
 import '../plugin.dart';
 import '../settings/about_panel.dart';
 import '../settings/settings_panel.dart';
+import '../strings.dart';
 import '../tags/tag_layer.dart';
 import '../tags/time_dial.dart';
 import '../theme/tokens.dart';
@@ -138,7 +139,8 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   void _onConfig() {
     final old = _config;
     final c = _config = widget.config.value;
-    applyFont(c);
+    applyConfig(c);
+    if (c.language != old.language) _updateTray();
     if (c.prefix != old.prefix) _registerPrefix();
     if (c.display != old.display) _moveTo(c.display);
     setState(() {});
@@ -350,12 +352,12 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   }
 
   void _updateTray() => widget.native.setTray('OneHit', [
-    ('settings', '设置…'),
-    ('about', '关于 OneHit'),
+    ('settings', strings.settingsMenu),
+    ('about', strings.aboutMenu),
     null,
-    ('toggle', _shown ? '隐藏浮窗' : '显示浮窗'),
+    ('toggle', _shown ? strings.hide : strings.show),
     null,
-    ('quit', '退出'),
+    ('quit', strings.quit),
   ]);
 
   void _onTrayMenu(String id) {
@@ -661,8 +663,10 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   }
 }
 
-/// Points the text tokens at the configured font.
-void applyFont(OneHitConfig c) {
+/// Points the text tokens at the configured font, and the UI text at the
+/// configured language.
+void applyConfig(OneHitConfig c) {
   OH.userFace = c.fontFamily.isEmpty ? OH.face : c.fontFamily;
   OH.userSize = c.fontSize;
+  strings = Strings.of(c.language);
 }

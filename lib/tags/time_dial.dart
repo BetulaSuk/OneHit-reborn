@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../editor/side_editor.dart';
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
+import '../strings.dart';
 import '../theme/tokens.dart';
 
 /// Sets an item's countdown on an activity ring: one lap is one hour, up to
@@ -155,7 +156,7 @@ class _TimeDialState extends State<TimeDial> {
                       painter: RingPainter(minutes: _value),
                       child: Center(
                         child: Text(
-                          m >= 60 ? '${m ~/ 60} 圈' : '',
+                          m >= 60 ? strings.laps(m ~/ 60) : '',
                           style: OH.itemText.copyWith(color: OH.inkSoft),
                         ),
                       ),
@@ -170,7 +171,7 @@ class _TimeDialState extends State<TimeDial> {
               children: [
                 _Digits(
                   value: m ~/ 60,
-                  label: '小时',
+                  label: strings.hours,
                   onWheel: (e) => _wheel(e, 60),
                   onStep: (s) => _add(60.0 * s),
                 ),
@@ -180,7 +181,7 @@ class _TimeDialState extends State<TimeDial> {
                 ),
                 _Digits(
                   value: m % 60,
-                  label: '分钟',
+                  label: strings.minutes,
                   onWheel: (e) => _wheel(e, 1),
                   onStep: (s) => _add(s.toDouble()),
                 ),
@@ -198,13 +199,13 @@ class _TimeDialState extends State<TimeDial> {
                   TextButton(
                     onPressed: widget.onRemove,
                     style: _flat,
-                    child: const Text('移除时间'),
+                    child: Text(strings.removeTime),
                   ),
                 const Spacer(),
                 TextButton(
                   onPressed: widget.onCancel,
                   style: _flat,
-                  child: const Text('取消'),
+                  child: Text(strings.cancel),
                 ),
                 const SizedBox(width: OH.unit * 2),
                 FilledButton(
@@ -215,7 +216,7 @@ class _TimeDialState extends State<TimeDial> {
                     textStyle: OH.itemText,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
-                  child: const Text('确定'),
+                  child: Text(strings.ok),
                 ),
               ],
             ),

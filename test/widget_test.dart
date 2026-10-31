@@ -117,6 +117,7 @@ void main() {
       'prefix': 'q',
       'fontSize': 99,
       'keys': {'list': 'f4', 'edit': 'nope'},
+      'language': 'fr',
     });
     expect(c.previewRadius, 6);
     expect(c.detailHeight, 60);
@@ -124,6 +125,8 @@ void main() {
     expect(c.fontSize, 20);
     expect(c.keyFor(Command.list), 'f4');
     expect(c.keyFor(Command.edit), 'e');
+    expect(c.language, '');
+    expect(OneHitConfig.fromJson({'language': 'en'}).language, 'en');
   });
 
   test('binding a taken key swaps it', () {

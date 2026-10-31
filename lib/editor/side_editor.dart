@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
 import '../item/item_store.dart';
+import '../strings.dart';
 import '../theme/controls.dart';
 import '../theme/tokens.dart';
 
@@ -78,10 +79,10 @@ class _SideEditorState extends State<SideEditor> {
             children: [
               ItemDisc(item: item, size: 28),
               const SizedBox(width: OH.unit * 2),
-              Expanded(child: Text('编辑信息', style: panelTitle)),
+              Expanded(child: Text(strings.editItem, style: panelTitle)),
               RoundIconButton(
                 icon: Icons.close_rounded,
-                label: '关闭',
+                label: strings.close,
                 onTap: widget.onClose,
               ),
             ],
@@ -96,7 +97,7 @@ class _SideEditorState extends State<SideEditor> {
             cursorColor: OH.ink,
             onChanged: (t) => store.setText(item, t),
             decoration: InputDecoration(
-              hintText: '写点什么',
+              hintText: strings.writeSomething,
               hintStyle: const TextStyle(color: OH.inkSoft),
               filled: true,
               fillColor: OH.discFill,
@@ -112,7 +113,7 @@ class _SideEditorState extends State<SideEditor> {
             ),
           ),
           const SizedBox(height: OH.unit * 4),
-          PanelSection('图标'),
+          PanelSection(strings.icon),
           Wrap(
             spacing: OH.unit * 1.5,
             runSpacing: OH.unit * 1.5,
@@ -131,29 +132,29 @@ class _SideEditorState extends State<SideEditor> {
               children: [
                 ItemDisc(item: item, size: 32),
                 const SizedBox(width: OH.unit * 2),
-                Expanded(child: Text('图片图标', style: panelBody)),
+                Expanded(child: Text(strings.imageIcon, style: panelBody)),
                 QuietButton(
-                  label: '移除图片',
+                  label: strings.removeImage,
                   onTap: () => store.setImage(item, null),
                 ),
               ],
             )
           else
-            Text('拖入图片文件或链接、或选中后粘贴图片，即可设为图标', style: panelHint),
+            Text(strings.iconHint, style: panelHint),
           const SizedBox(height: OH.unit * 4),
-          PanelSection('标签'),
+          PanelSection(strings.tags),
           Wrap(
             spacing: OH.unit * 2,
             runSpacing: OH.unit * 2,
             children: [
               PillToggle(
-                label: '下沉',
+                label: strings.sink,
                 icon: Icons.south_rounded,
                 on: item.sunk,
                 onTap: () => store.setSunk(item, !item.sunk),
               ),
               PillToggle(
-                label: '详细',
+                label: strings.detail,
                 icon: Icons.unfold_more_rounded,
                 on: item.detail,
                 onTap: () => store.setDetail(item, !item.detail),
@@ -166,7 +167,7 @@ class _SideEditorState extends State<SideEditor> {
           Align(
             alignment: Alignment.centerLeft,
             child: QuietButton(
-              label: '删除这条信息',
+              label: strings.deleteItem,
               icon: Icons.delete_outline_rounded,
               onTap: () {
                 widget.onClose();
@@ -198,7 +199,7 @@ class _TimeRow extends StatelessWidget {
       return Align(
         alignment: Alignment.centerLeft,
         child: PillToggle(
-          label: '时间',
+          label: strings.time,
           icon: Icons.timer_outlined,
           on: false,
           onTap: onDial,
@@ -222,9 +223,10 @@ class _TimeRow extends StatelessWidget {
             ),
             const SizedBox(width: OH.unit * 2),
             Text(switch (state) {
-              TimeState.running => '计时中',
-              TimeState.paused => item.sunk ? '已下沉，暂停' : '已暂停',
-              TimeState.ended => '已结束',
+              TimeState.running => strings.running,
+              TimeState.paused =>
+                item.sunk ? strings.sunkPaused : strings.paused,
+              TimeState.ended => strings.ended,
             }, style: panelHint),
             const Spacer(),
             if (state != TimeState.ended && !item.sunk)
@@ -232,17 +234,19 @@ class _TimeRow extends StatelessWidget {
                 icon: state == TimeState.running
                     ? Icons.pause_rounded
                     : Icons.play_arrow_rounded,
-                label: state == TimeState.running ? '暂停' : '继续',
+                label: state == TimeState.running
+                    ? strings.pause
+                    : strings.resume,
                 onTap: () => store.toggleTime(item),
               ),
             RoundIconButton(
               icon: Icons.tune_rounded,
-              label: '调整时间',
+              label: strings.adjustTime,
               onTap: onDial,
             ),
             RoundIconButton(
               icon: Icons.close_rounded,
-              label: '移除时间',
+              label: strings.removeTime,
               onTap: () => store.clearTime(item),
             ),
           ],
@@ -304,8 +308,8 @@ class KindSwitch extends StatelessWidget {
       ),
       child: Row(
         children: [
-          option(TimeKind.reminder, 'Reminder', '一直计时，结束时浮出提醒'),
-          option(TimeKind.timer, 'Timer', '只在浮窗显示时计时'),
+          option(TimeKind.reminder, 'Reminder', strings.reminderNote),
+          option(TimeKind.timer, 'Timer', strings.timerNote),
         ],
       ),
     );

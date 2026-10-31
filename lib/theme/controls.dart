@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../strings.dart';
 import 'tokens.dart';
 
 /// Shared parts of the detached panels (editor, settings, about): a white
@@ -175,7 +176,7 @@ class KeyChip extends StatelessWidget {
       child: Align(
         widthFactor: 1,
         child: Text(
-          recording ? '按下按键…' : label,
+          recording ? strings.pressKey : label,
           style: panelBody.copyWith(
             color: recording ? OH.ground : OH.ink,
             fontWeight: FontWeight.w700,
@@ -237,7 +238,7 @@ class PillStepper extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          button(Icons.remove_rounded, -1, canDown, '减少'),
+          button(Icons.remove_rounded, -1, canDown, strings.decrease),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 40),
             child: Text(
@@ -248,7 +249,7 @@ class PillStepper extends StatelessWidget {
               ),
             ),
           ),
-          button(Icons.add_rounded, 1, canUp, '增加'),
+          button(Icons.add_rounded, 1, canUp, strings.increase),
         ],
       ),
     );

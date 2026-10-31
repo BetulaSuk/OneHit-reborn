@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../strings.dart';
 import '../theme/tokens.dart';
 import 'info_item.dart';
 import 'info_item_view.dart';
@@ -70,7 +71,7 @@ class DetailCard extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Text(
-                        item.text.isEmpty ? '空白信息' : item.text,
+                        item.text.isEmpty ? strings.emptyItem : item.text,
                         style: OH.itemText.copyWith(
                           color: item.text.isEmpty ? OH.inkSoft : OH.ink,
                           height: 1.45,
@@ -178,12 +179,12 @@ class InlineEditor extends StatelessWidget {
                       style: OH.itemText.copyWith(height: 1.45),
                       cursorColor: OH.ink,
                       cursorWidth: 1.5,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         isCollapsed: true,
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.only(top: 9),
-                        hintText: '写点什么',
-                        hintStyle: TextStyle(color: OH.inkSoft),
+                        contentPadding: const EdgeInsets.only(top: 9),
+                        hintText: strings.writeSomething,
+                        hintStyle: const TextStyle(color: OH.inkSoft),
                       ),
                     ),
                   ),
@@ -194,7 +195,7 @@ class InlineEditor extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: OH.disc + OH.gap),
             child: Text(
-              'Enter 保存 · Shift+Enter 换行 · Esc 取消',
+              strings.inlineEditHint,
               style: OH.itemText.copyWith(fontSize: 12, color: OH.inkSoft),
             ),
           ),
@@ -206,7 +207,10 @@ class InlineEditor extends StatelessWidget {
 
 /// Green slot at either end of the list for adding a new item.
 class AddSlot extends StatelessWidget {
-  const AddSlot({super.key, this.fade = 1});
+  // Not const, so a const slot cannot skip rebuilds when the language or
+  // font changes.
+  // ignore: prefer_const_constructors_in_immutables
+  AddSlot({super.key, this.fade = 1});
 
   final double fade;
 
@@ -229,7 +233,10 @@ class AddSlot extends StatelessWidget {
           children: [
             const Icon(Icons.add_rounded, size: 20, color: OH.addInk),
             const SizedBox(width: OH.unit),
-            Text('新建信息', style: OH.itemText.copyWith(color: OH.addInk)),
+            Text(
+              strings.newItem,
+              style: OH.itemText.copyWith(color: OH.addInk),
+            ),
           ],
         ),
       ),

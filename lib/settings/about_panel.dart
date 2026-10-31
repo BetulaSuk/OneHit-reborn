@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../strings.dart';
 import '../theme/controls.dart';
 import '../theme/tokens.dart';
 
@@ -46,44 +47,41 @@ class AboutPanel extends StatelessWidget {
                       'OneHit',
                       style: panelTitle.copyWith(fontSize: OH.userSize + 5),
                     ),
-                    Text('版本 $version', style: panelHint),
+                    Text(strings.version(version), style: panelHint),
                   ],
                 ),
               ),
               RoundIconButton(
                 icon: Icons.close_rounded,
-                label: '关闭',
+                label: strings.close,
                 onTap: onClose,
               ),
             ],
           ),
           const SizedBox(height: OH.unit * 4),
-          Text(
-            '把此刻最重要的一条信息放在桌面最上层。悬停翻看，长按拖动加标签，双击打开列表。',
-            style: panelBody.copyWith(height: 1.5),
-          ),
+          Text(strings.aboutBlurb, style: panelBody.copyWith(height: 1.5)),
           const SizedBox(height: OH.unit * 5),
-          const PanelSection('快捷键'),
+          PanelSection(strings.shortcuts),
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: OH.unit * 1.5,
             runSpacing: OH.unit * 1.5,
             children: [
-              Text('先按', style: panelBody),
+              Text(strings.pressFirst, style: panelBody),
               KeyChip(label: prefix),
-              Text('再按', style: panelBody),
+              Text(strings.thenPress, style: panelBody),
               KeyChip(label: settingsKey),
-              Text('打开设置', style: panelBody),
+              Text(strings.toOpenSettings, style: panelBody),
             ],
           ),
           const SizedBox(height: OH.unit * 5),
-          const PanelSection('数据位置'),
+          PanelSection(strings.dataFolder),
           SelectableText(dataDir, style: panelHint),
           const SizedBox(height: OH.unit),
           Align(
             alignment: Alignment.centerLeft,
             child: QuietButton(
-              label: '打开文件夹',
+              label: strings.openFolder,
               icon: Icons.folder_open_outlined,
               onTap: () => Process.run('explorer', [dataDir]),
             ),

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../strings.dart';
 import '../theme/tokens.dart';
 import 'info_item.dart';
 
@@ -91,7 +92,7 @@ class InfoItemView extends StatelessWidget {
                       const SizedBox(width: OH.gap),
                       Expanded(
                         child: Text(
-                          item.text.isEmpty ? '空白信息' : item.text,
+                          item.text.isEmpty ? strings.emptyItem : item.text,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: ended
@@ -245,9 +246,9 @@ class _TimeCellState extends State<_TimeCell>
           child: Semantics(
             button: interactive,
             label: switch (state) {
-              TimeState.running => '暂停倒计时',
-              TimeState.paused => '继续倒计时',
-              TimeState.ended => '倒计时已结束',
+              TimeState.running => strings.pauseCountdown,
+              TimeState.paused => strings.resumeCountdown,
+              TimeState.ended => strings.countdownEnded,
             },
             child: Row(
               mainAxisSize: MainAxisSize.min,

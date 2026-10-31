@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'item/info_item.dart';
 import 'item/item_store.dart';
+import 'strings.dart';
 
 /// A drop zone shown around the window while an item is dragged by long
 /// press. Dropping the item on it applies the zone's tag.
@@ -22,8 +23,9 @@ class TagZone {
   /// Square zones are taller (the time zone); the rest are pills.
   final bool square;
 
-  /// Label for the dragged item when it differs from [label], e.g. "上浮"
-  /// for an item that is already sunk.
+  /// Label for the dragged item when it differs from [label], e.g. "Float"
+  /// for an item that is already sunk. The built-in zones use it to follow
+  /// the language setting.
   final String Function(InfoItem item)? activeLabel;
 
   final void Function(TagDropContext context) onDrop;
@@ -61,23 +63,24 @@ abstract class OneHitPlugin {
 List<TagZone> builtInZones() => [
   TagZone(
     id: 'sink',
-    label: '下沉',
+    label: strings.sink,
     icon: Icons.swap_vert_rounded,
-    activeLabel: (item) => item.sunk ? '上浮' : '下沉',
+    activeLabel: (item) => item.sunk ? strings.float : strings.sink,
     onDrop: (c) => c.store.setSunk(c.item, !c.item.sunk),
   ),
   TagZone(
     id: 'time',
-    label: '时间',
+    label: strings.time,
     icon: Icons.timer_rounded,
     square: true,
+    activeLabel: (_) => strings.time,
     onDrop: (c) => c.openTimeDial(),
   ),
   TagZone(
     id: 'detail',
-    label: '详细',
+    label: strings.detail,
     icon: Icons.unfold_more_rounded,
-    activeLabel: (item) => item.detail ? '取消详细' : '详细',
+    activeLabel: (item) => item.detail ? strings.undetail : strings.detail,
     onDrop: (c) => c.store.setDetail(c.item, !c.item.detail),
   ),
 ];

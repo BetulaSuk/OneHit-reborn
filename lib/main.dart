@@ -22,7 +22,7 @@ Future<void> main() async {
     await OneHitConfig.load(storage.config),
     onSave: storage.saveConfig,
   );
-  applyFont(config.value);
+  applyConfig(config.value);
   final store = ItemStore(await storage.loadItems(), onSave: storage.saveItems);
   for (final p in plugins) {
     p.attach(store);

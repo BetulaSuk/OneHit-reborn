@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
 import '../plugin.dart';
+import '../strings.dart';
 import '../theme/tokens.dart';
 
 const double _pillW = 152;
@@ -106,7 +107,9 @@ class TagLayer extends StatelessWidget {
                   zone: zone,
                   label: zone.activeLabel?.call(item) ?? zone.label,
                   hint: zone.id == 'time'
-                      ? (item.time == null ? '设定倒计时' : '重新调整')
+                      ? (item.time == null
+                            ? strings.setCountdown
+                            : strings.changeCountdown)
                       : null,
                   hovered: hovered == zone.id && !returning,
                 ),

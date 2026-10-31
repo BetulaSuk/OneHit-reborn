@@ -4,24 +4,26 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'shell/keys.dart';
+import 'strings.dart';
 
 /// What the key after the prefix can do.
 enum Command {
-  toggle('显示或隐藏浮窗', 'h'),
-  list('打开或关闭列表', 'l'),
-  create('新建信息', 'n'),
-  edit('编辑当前信息', 'e'),
-  paste('剪贴板存为新信息', 'v'),
-  time('给当前信息定时', 't'),
-  pause('暂停或继续计时', 'p'),
-  next('下一条信息', 'j'),
-  previous('上一条信息', 'k'),
-  settings('打开设置', 's');
+  toggle('h'),
+  list('l'),
+  create('n'),
+  edit('e'),
+  paste('v'),
+  time('t'),
+  pause('p'),
+  next('j'),
+  previous('k'),
+  settings('s');
 
-  const Command(this.label, this.defaultKey);
+  const Command(this.defaultKey);
 
-  final String label;
   final String defaultKey;
+
+  String get label => strings.command(this);
 }
 
 /// User-adjustable behaviour, read from `config.json` in the app's support
@@ -38,6 +40,7 @@ class OneHitConfig {
     this.display = '',
     this.fontFamily = '',
     this.fontSize = 15,
+    this.language = '',
   });
 
   /// Rows shown around the strip while hovering. 2 means at most five
@@ -59,6 +62,9 @@ class OneHitConfig {
   /// Empty for the design's own font.
   final String fontFamily;
   final double fontSize;
+
+  /// `zh`, `en`, or empty to follow Windows.
+  final String language;
 
   String keyFor(Command c) => keys[c] ?? c.defaultKey;
 
@@ -88,6 +94,7 @@ class OneHitConfig {
     String? display,
     String? fontFamily,
     double? fontSize,
+    String? language,
   }) => OneHitConfig(
     previewRadius: previewRadius ?? this.previewRadius,
     detailHeight: detailHeight ?? this.detailHeight,
@@ -96,6 +103,7 @@ class OneHitConfig {
     display: display ?? this.display,
     fontFamily: fontFamily ?? this.fontFamily,
     fontSize: fontSize ?? this.fontSize,
+    language: language ?? this.language,
   );
 
   Map<String, Object?> toJson() => {
@@ -106,6 +114,7 @@ class OneHitConfig {
     'display': display,
     'fontFamily': fontFamily,
     'fontSize': fontSize,
+    'language': language,
   };
 
   factory OneHitConfig.fromJson(Map<String, Object?> json) {
@@ -134,6 +143,11 @@ class OneHitConfig {
       display: pick('display', d.display),
       fontFamily: pick('fontFamily', d.fontFamily),
       fontSize: pick('fontSize', d.fontSize).clamp(12.0, 20.0),
+      language: switch (pick('language', d.language)) {
+        'zh' => 'zh',
+        'en' => 'en',
+        _ => '',
+      },
     );
   }
 

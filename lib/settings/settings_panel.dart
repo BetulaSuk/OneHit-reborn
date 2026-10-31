@@ -7,6 +7,7 @@ import '../item/info_item_view.dart';
 import '../item/item_store.dart';
 import '../shell/keys.dart';
 import '../shell/native.dart';
+import '../strings.dart';
 import '../theme/controls.dart';
 import '../theme/tokens.dart';
 
@@ -60,12 +61,6 @@ class _SettingsPanelState extends State<SettingsPanel> {
   final _search = TextEditingController();
 
   OneHitConfig get _c => widget.config.value;
-
-  static final _sample = InfoItem(
-    id: 'sample',
-    text: '字体预览 Aa 123',
-    icon: 'notes',
-  );
 
   @override
   void initState() {
@@ -124,7 +119,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
         _set(_c.copyWith(prefix: '$chord'));
         _stopRecording();
       } else if (keyNameOfEvent(e.logicalKey) != null) {
-        setState(() => _recordHint = '前缀键要带上 Ctrl、Alt、Shift 或 Win');
+        setState(() => _recordHint = strings.prefixNeedsModifier);
       }
     } else if (target is Command) {
       final name = keyNameOfEvent(e.logicalKey);
@@ -167,10 +162,10 @@ class _SettingsPanelState extends State<SettingsPanel> {
     final prefix = Chord.parse(c.prefix)!;
     final recordingPrefix = _recording == _prefix;
     final prefixNote = recordingPrefix
-        ? (_recordHint ?? '按下新的组合键，Esc 取消')
+        ? (_recordHint ?? strings.recordPrefix)
         : widget.prefixFree
-        ? '先按前缀键，再按下面的一个键'
-        : '这个组合键被其他程序占用了，换一个吧';
+        ? strings.prefixHow
+        : strings.prefixTaken;
 
     return Focus(
       focusNode: _keys,
@@ -188,19 +183,33 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 children: [
                   Expanded(
                     child: Text(
-                      '设置',
+                      strings.settings,
                       style: panelTitle.copyWith(fontSize: OH.userSize + 3),
                     ),
                   ),
                   RoundIconButton(
                     icon: Icons.close_rounded,
-                    label: '关闭',
+                    label: strings.close,
                     onTap: widget.onClose,
                   ),
                 ],
               ),
               const SizedBox(height: OH.unit * 4),
-              const PanelSection('显示屏'),
+              PanelSection(strings.language),
+              Wrap(
+                spacing: OH.unit * 2,
+                children: [
+                  for (final (code, name) in [('zh', '中文'), ('en', 'English')])
+                    PillToggle(
+                      label: name,
+                      icon: Icons.translate_rounded,
+                      on: strings.code == code,
+                      onTap: () => _set(c.copyWith(language: code)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: OH.unit * 6),
+              PanelSection(strings.display),
               Wrap(
                 spacing: OH.unit * 2,
                 runSpacing: OH.unit * 2,
@@ -208,9 +217,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
                   for (final d in _displays)
                     PillToggle(
                       label: [
-                        '显示器 ${d.number}',
+                        strings.monitor(d.number),
                         '${d.width}×${d.height}',
-                        if (d.primary) '主屏',
+                        if (d.primary) strings.primary,
                       ].join(' · '),
                       icon: Icons.desktop_windows_outlined,
                       on: _showsOn(d),
@@ -220,9 +229,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 ],
               ),
               const SizedBox(height: OH.unit * 6),
-              const PanelSection('快捷键'),
+              PanelSection(strings.shortcuts),
               _Row(
-                label: '前缀键',
+                label: strings.prefix,
                 child: KeyChip(
                   label: prefix.label,
                   recording: recordingPrefix,
@@ -250,9 +259,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
                   ),
                 ),
               const SizedBox(height: OH.unit * 6),
-              const PanelSection('文字'),
+              PanelSection(strings.text),
               _Row(
-                label: '字体',
+                label: strings.font,
                 child: _FontChip(
                   family: c.fontFamily,
                   open: _picking,
@@ -261,7 +270,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
               ),
               if (_picking) _fontList(c),
               _Row(
-                label: '字号',
+                label: strings.fontSize,
                 child: PillStepper(
                   label: '${c.fontSize.round()}',
                   canDown: c.fontSize > 12,
@@ -272,17 +281,23 @@ class _SettingsPanelState extends State<SettingsPanel> {
               const SizedBox(height: OH.unit * 3),
               Center(
                 child: InfoItemView(
-                  item: widget.store.pinned ?? _sample,
+                  item:
+                      widget.store.pinned ??
+                      InfoItem(
+                        id: 'sample',
+                        text: strings.fontSample,
+                        icon: 'notes',
+                      ),
                   now: widget.store.now,
                   lifted: false,
                 ),
               ),
               const SizedBox(height: OH.unit * 6),
-              const PanelSection('浮窗'),
+              PanelSection(strings.window),
               _Row(
-                label: '悬停时显示',
+                label: strings.onHover,
                 child: PillStepper(
-                  label: '前后各 ${c.previewRadius} 条',
+                  label: strings.eachWay(c.previewRadius),
                   canDown: c.previewRadius > 0,
                   canUp: c.previewRadius < 6,
                   onStep: (d) =>
@@ -290,7 +305,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 ),
               ),
               _Row(
-                label: '详细信息高度',
+                label: strings.detailHeight,
                 child: PillStepper(
                   label: '${c.detailHeight.round()}',
                   canDown: c.detailHeight > 60,
@@ -306,7 +321,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: PillToggle(
-                  label: '开机时启动',
+                  label: strings.startWithWindows,
                   icon: Icons.power_settings_new_rounded,
                   on: _autostart,
                   onTap: _toggleAutostart,
@@ -323,7 +338,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
     final fonts = _fonts;
     final q = _query.trim().toLowerCase();
     final options = <FontName>[
-      (family: '', name: '默认（${OH.face}）'),
+      (family: '', name: strings.defaultFont(OH.face)),
       for (final f in fonts ?? const <FontName>[])
         if (q.isEmpty ||
             f.name.toLowerCase().contains(q) ||
@@ -347,7 +362,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
             onChanged: (t) => setState(() => _query = t),
             decoration: InputDecoration(
               isDense: true,
-              hintText: '搜索字体',
+              hintText: strings.searchFonts,
               hintStyle: panelBody.copyWith(color: OH.inkSoft),
               prefixIcon: const Icon(
                 Icons.search_rounded,
@@ -366,7 +381,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
           SizedBox(
             height: 216,
             child: fonts == null
-                ? Center(child: Text('正在读取字体…', style: panelHint))
+                ? Center(child: Text(strings.loadingFonts, style: panelHint))
                 : ListView.builder(
                     itemCount: options.length,
                     itemExtent: 36,
@@ -463,7 +478,7 @@ class _FontChip extends StatelessWidget {
             children: [
               Flexible(
                 child: Text(
-                  family.isEmpty ? '默认' : family,
+                  family.isEmpty ? strings.defaultShort : family,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: panelBody,

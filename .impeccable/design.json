@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T00:00:00Z",
+  "title": "Design System: OneHit",
+  "extensions": {
+    "colorMeta": {
+      "ground": { "role": "neutral", "displayName": "Pill White", "canonical": "oklch(100% 0 0)", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "ink": { "role": "neutral", "displayName": "Near-Black Ink", "canonical": "oklch(17.9% 0.006 285.8)", "tonalRamp": ["#0b0b0e", "#252528", "#414245", "#616165", "#828286", "#a4a4a9", "#c8c9cd", "#eeeef2"] },
+      "disc-fill": { "role": "neutral", "displayName": "Disc Grey", "canonical": "oklch(95.6% 0.004 286.3)", "tonalRamp": ["#0b0b0d", "#252527", "#424244", "#616163", "#828285", "#a5a5a7", "#c9c9cc", "#eeeef1"] },
+      "run-track": { "role": "primary", "displayName": "Lime Track", "canonical": "oklch(96.5% 0.044 124)", "tonalRamp": ["#090d03", "#222817", "#3e4531", "#5c654d", "#7d876b", "#a0aa8f", "#c4cdb5", "#eaf2dd"] },
+      "run-lap": { "role": "primary", "displayName": "Ring Lime", "canonical": "oklch(84.9% 0.207 128.8)", "tonalRamp": ["#050f00", "#192c00", "#2f4c00", "#496f00", "#639400", "#81ba18", "#a8dd62", "#d1ff98"] },
+      "run-over": { "role": "primary", "displayName": "Deep Lime", "canonical": "oklch(73.6% 0.207 134.6)", "tonalRamp": ["#030f00", "#102d00", "#224f00", "#377200", "#4d9800", "#70bd34", "#9ae06e", "#c6ffa1"] },
+      "pause-track": { "role": "secondary", "displayName": "Amber Track", "canonical": "oklch(96.3% 0.048 90.1)", "tonalRamp": ["#100a01", "#2b2411", "#4a412a", "#6b6045", "#8d8262", "#afa487", "#d2c9ae", "#f7eed6"] },
+      "pause-lap": { "role": "secondary", "displayName": "Pause Amber", "canonical": "oklch(84.7% 0.161 83.4)", "tonalRamp": ["#130900", "#332200", "#573d00", "#7e5a00", "#a77a00", "#d09b17", "#f1c260", "#ffe897"] },
+      "pause-over": { "role": "secondary", "displayName": "Deep Amber", "canonical": "oklch(76.9% 0.165 70.1)", "tonalRamp": ["#170700", "#391e00", "#5e3800", "#885400", "#b47200", "#de9222", "#ffba64", "#ffe7b9"] },
+      "pause-ink": { "role": "secondary", "displayName": "Amber Ink", "canonical": "oklch(46.2% 0.099 72.2)", "tonalRamp": ["#160700", "#391e00", "#5b3a03", "#80581f", "#a6783a", "#c79c66", "#e9c291", "#ffe8bd"] },
+      "end-ring": { "role": "tertiary", "displayName": "Ring Red", "canonical": "oklch(57.8% 0.226 19.4)", "tonalRamp": ["#210002", "#4f000c", "#83001b", "#b9002d", "#ea2748", "#ff6d76", "#ffadae", "#ffe6e5"] },
+      "end-ink": { "role": "tertiary", "displayName": "Ended White Ink", "canonical": "oklch(100% 0 0)", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "end-track": { "role": "tertiary", "displayName": "Red Track", "canonical": "oklch(93.6% 0.031 2.6)", "tonalRamp": ["#12080a", "#2e2124", "#4e3d41", "#6f5b60", "#937b81", "#b59ea3", "#d8c3c8", "#fce9ed"] },
+      "add-ink": { "role": "tertiary", "displayName": "Add Green", "canonical": "oklch(50.9% 0.139 147.7)", "tonalRamp": ["#001100", "#003001", "#005405", "#007722", "#1d9c3d", "#5abe69", "#8be194", "#b9ffc0"] },
+      "add-fill": { "role": "tertiary", "displayName": "Add Mint", "canonical": "oklch(96.3% 0.026 150.8)", "tonalRamp": ["#070d08", "#1f2821", "#3a453c", "#58655b", "#78877b", "#9ba99e", "#c0cdc2", "#e6f2e8"] }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Time", "purpose": "Remaining time in the time cell: m:ss under an hour, h:mm:ss above. Tabular figures so ticking digits stay still." },
+      "body": { "displayName": "Item Text", "purpose": "The single-line item text, ellipsis-truncated; also the add-slot label. Held at 400 because Microsoft YaHei UI has no semibold." }
+    },
+    "shadows": [
+      { "name": "lift", "value": "0 8px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08)", "purpose": "The pinned strip only; preview rows, alerts and add slots are flat." },
+      { "name": "lap-cap", "value": "Flutter Canvas.drawShadow elevation 2, color #00000033", "purpose": "Soft shadow at the round cap of the first-hour lap." },
+      { "name": "overflow-cap", "value": "Flutter Canvas.drawShadow elevation 3, color #00000055", "purpose": "Stronger cap shadow where the overflow lap passes over the first lap." }
+    ],
+    "motion": [
+      { "name": "quick", "value": "180ms", "purpose": "Preview rows fading in and out; pause/play glyph appearing on hover." },
+      { "name": "settle", "value": "320ms", "purpose": "Scroll settling, pin glide to the strip, pause/play glyph morph, return before shrink." },
+      { "name": "ease-settle", "value": "Curves.easeOutExpo (approx. cubic-bezier(0.16, 1, 0.3, 1))", "purpose": "Scroll, pin glide and glyph morph." },
+      { "name": "leave-grace", "value": "140ms", "purpose": "Delay after the pointer leaves before the preview collapses." },
+      { "name": "preview-fade", "value": "opacity = 1 - 0.375 × rowDistance (about 0.25 at the edge)", "purpose": "Distance fade of preview rows; laps lerp toward their track by the same factor." },
+      { "name": "ring-close", "value": "not designed", "purpose": "Open: the motion when a countdown reaches zero. Today the strip switches to the red pill instantly." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Strip (untimed)",
+      "kind": "custom",
+      "refersTo": "strip",
+      "description": "The pinned item pill with no time tag: white, near-black, lifted.",
+      "html": "<div class=\"ds-strip\" tabindex=\"0\"><span class=\"ds-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#111114\"><path d=\"M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z\"/></svg></span><span class=\"ds-text\">读完第三章并写摘要</span></div>",
+      "css": ".ds-strip { width: 320px; height: 52px; border-radius: 26px; background: #ffffff; color: #111114; display: flex; align-items: center; padding: 0 16px 0 8px; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08); font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; font-size: 15px; font-weight: 400; line-height: 1.2; letter-spacing: -0.1px; overflow: hidden; cursor: grab; } .ds-strip:focus-visible { outline: 2px solid #111114; outline-offset: 2px; } .ds-disc { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f3; display: grid; place-items: center; flex: none; } .ds-text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }"
+    },
+    {
+      "name": "Strip (running, overflow lap)",
+      "kind": "custom",
+      "refersTo": "strip-running",
+      "description": "A running countdown past one hour: lime track, first lap full, deeper overflow lap blending in at its start with a cap shadow.",
+      "html": "<div class=\"ds-run\"><span class=\"ds-run-lap\"></span><span class=\"ds-run-over\"></span><span class=\"ds-run-row\"><span class=\"ds-run-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#111114\"><path d=\"M16 11a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm-8 0a3 3 0 1 0-3-3 3 3 0 0 0 3 3zm0 2c-2.3 0-7 1.2-7 3.5V19h14v-2.5C15 14.2 10.3 13 8 13zm8 0c-.3 0-.6 0-1 .1 1.2.8 2 1.9 2 3.4V19h6v-2.5c0-2.3-4.7-3.5-7-3.5z\"/></svg></span><span class=\"ds-run-text\">组会：带上周的实验数据</span><button class=\"ds-run-time\">1:39:51</button></span></div>",
+      "css": ".ds-run { position: relative; width: 320px; height: 52px; border-radius: 26px; background: #edf9d9; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08); font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; color: #111114; } .ds-run-lap { position: absolute; inset: 0; border-radius: 26px; background: #a3e635; } .ds-run-over { position: absolute; left: 0; top: 0; height: 52px; width: 230px; border-radius: 26px; background: linear-gradient(90deg, #a3e635 0, #6cc417 78px); box-shadow: 2px 0 6px rgba(0,0,0,0.33); transition: width 0.32s cubic-bezier(0.16,1,0.3,1); } .ds-run-row { position: relative; display: flex; align-items: center; height: 100%; padding: 0 16px 0 8px; gap: 12px; } .ds-run-disc { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f3; display: grid; place-items: center; flex: none; } .ds-run-text { flex: 1; font-size: 15px; font-weight: 400; line-height: 1.2; letter-spacing: -0.1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-run-time { all: unset; font-size: 20px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; } .ds-run-time:focus-visible { outline: 2px solid #111114; outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Strip (paused)",
+      "kind": "custom",
+      "refersTo": "strip-paused",
+      "description": "The same anatomy in amber; the play glyph stays visible and the time switches to amber ink.",
+      "html": "<div class=\"ds-pause\"><span class=\"ds-pause-lap\"></span><span class=\"ds-pause-row\"><span class=\"ds-pause-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#111114\"><path d=\"M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5z\"/></svg></span><span class=\"ds-pause-text\">回复王老师的论文修改意见</span><button class=\"ds-pause-time\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"#7a4e00\"><path d=\"M8 5v14l11-7z\"/></svg>42:12</button></span></div>",
+      "css": ".ds-pause { position: relative; width: 320px; height: 52px; border-radius: 26px; background: #fff2cf; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08); font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; color: #111114; } .ds-pause-lap { position: absolute; left: 0; top: 0; height: 52px; width: 240px; border-radius: 26px; background: #ffc233; box-shadow: 1px 0 4px rgba(0,0,0,0.2); } .ds-pause-row { position: relative; display: flex; align-items: center; height: 100%; padding: 0 16px 0 8px; gap: 12px; } .ds-pause-disc { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f3; display: grid; place-items: center; flex: none; } .ds-pause-text { flex: 1; font-size: 15px; font-weight: 400; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-pause-time { all: unset; display: flex; align-items: center; gap: 4px; color: #7a4e00; font-size: 20px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; } .ds-pause-time:focus-visible { outline: 2px solid #7a4e00; outline-offset: 3px; border-radius: 4px; }"
+    },
+    {
+      "name": "Strip (ended)",
+      "kind": "custom",
+      "refersTo": "strip-ended",
+      "description": "The ring closes into a solid red pill with white text and time; the time is no longer a control.",
+      "html": "<div class=\"ds-end\"><span class=\"ds-end-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#111114\"><path d=\"M12 2c3 2 5 6 5 10l2 3v3h-4l-1 2h-4l-1-2H5v-3l2-3c0-4 2-8 5-10zm0 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4z\"/></svg></span><span class=\"ds-end-text\">发版前跑一遍 e2e</span><span class=\"ds-end-time\">0:00</span></div>",
+      "css": ".ds-end { width: 320px; height: 52px; border-radius: 26px; background: #e0123f; color: #ffffff; display: flex; align-items: center; padding: 0 16px 0 8px; gap: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08); font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; } .ds-end-disc { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f3; display: grid; place-items: center; flex: none; } .ds-end-text { flex: 1; font-size: 15px; font-weight: 400; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-end-time { font-size: 20px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Preview Row (faded)",
+      "kind": "custom",
+      "refersTo": "strip-running",
+      "description": "A neighbour one row from the strip: near-opaque ground, ink at the row's fade, lap lerped toward its own track, no lift.",
+      "html": "<div class=\"ds-prev\"><span class=\"ds-prev-lap\"></span><span class=\"ds-prev-row\"><span class=\"ds-prev-text\">番茄钟 · 整理参考文献</span><span class=\"ds-prev-time\">18:20</span></span></div>",
+      "css": ".ds-prev { position: relative; width: 320px; height: 52px; border-radius: 26px; background: #edf9d9; overflow: hidden; font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; color: #111114; cursor: pointer; transition: opacity 0.18s; } .ds-prev-lap { position: absolute; left: 0; top: 0; height: 52px; width: 130px; border-radius: 26px; background: color-mix(in srgb, #a3e635 62.5%, #edf9d9); } .ds-prev-row { position: relative; display: flex; align-items: center; height: 100%; padding: 0 16px 0 56px; gap: 8px; opacity: 0.625; } .ds-prev-text { flex: 1; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-prev-time { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; } .ds-prev:hover .ds-prev-row { opacity: 0.8; } .ds-prev:focus-visible { outline: 2px solid #111114; outline-offset: 2px; }"
+    },
+    {
+      "name": "Icon Disc",
+      "kind": "custom",
+      "refersTo": "icon-disc",
+      "description": "36px grey circle holding a 20px rounded icon or the item's cropped image.",
+      "html": "<span class=\"ds-icon-disc\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#111114\"><path d=\"M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z\"/></svg></span>",
+      "css": ".ds-icon-disc { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f3; display: inline-grid; place-items: center; overflow: hidden; }"
+    },
+    {
+      "name": "Add Slot",
+      "kind": "button",
+      "refersTo": "add-slot",
+      "description": "Strip-sized mint pill at both list ends, the only outlined shape. Its click action is not designed yet.",
+      "html": "<button class=\"ds-add\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"#157a32\"><path d=\"M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z\"/></svg>新建信息</button>",
+      "css": ".ds-add { width: 320px; height: 52px; border-radius: 26px; background: #e7f8ea; border: 1.5px solid #157a32; color: #157a32; display: flex; align-items: center; justify-content: center; gap: 4px; font-family: 'Segoe UI Variable Display', 'Segoe UI', 'Microsoft YaHei UI', sans-serif; font-size: 15px; font-weight: 400; line-height: 1.2; cursor: pointer; } .ds-add:focus-visible { outline: 2px solid #157a32; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Unrolled Ring",
+    "overview": "OneHit is a single white pill that stays on top of the Windows desktop. It shows the one item that matters right now, and when that item is timed, its remaining time is drawn the way an Apple Watch Activity ring fills: a thick, round-capped lap growing across the pill from the left. One lap is one hour. Time past the first hour is laid over it as a deeper lap of the same hue, blending in near the lap start and casting a soft shadow at its cap, like a ring passing its own start. The user chose this world (\"like the ring of apple watch sports\") over the contract's candidate direction. It is translated onto an always-light ground: white pill, near-black ink, and ring colour only where it carries state.\n\nDensity is extreme by design. At rest the window is exactly one 320×52 strip, plus a red pill above it for each Reminder that ended while it was not pinned. On hover the OS window grows above and below, and neighbouring items fade in as stacked pills while the pinned strip stays put on screen. Nothing else exists: no header, no footer, no dividers, no chrome. Every interaction acts directly on the pills: wheel to scroll, click to pin, middle-click to return, click the time to pause, drag the strip to move the window.\n\nConfirmed rejections from the user: it must not read as a sticky note (便利贴), and it must not read as a shrunken todo app (待办 App 缩小版), so no checkbox rows, no paper or tape textures, and no Fluent widget card.",
+    "keyCharacteristics": [
+      "One 320×52 full-pill strip on a 4px geometry unit; the window is the pill.",
+      "Colour only as state: lime running, amber paused, solid red ended. Each state has a track, a lap and an overflow lap.",
+      "The lap is the countdown: one lap is one hour, deeper overflow lap past the hour, up to 12 hours.",
+      "Preview rows fade by distance. The ground stays near-opaque, ink fades, and laps pale toward their own track.",
+      "Round caps and stadium shapes everywhere; the only stroke is the add slot's outline."
+    ],
+    "rules": [
+      { "name": "The State-Only Colour Rule", "body": "Hue appears only to say running, paused or ended (plus the green add affordance). An untimed item is white and near-black, with no accent at all.", "section": "colors" },
+      { "name": "The Three-Step State Rule", "body": "Every state has a track, a lap and an overflow lap in one hue. A new state must bring all three, never a single swatch.", "section": "colors" },
+      { "name": "The Pale-Toward-Track Rule", "body": "A preview row fades by lerping its lap colours toward that state's own track and fading its ink. It never desaturates to grey and never lowers the ground's opacity below 94%. The pinned strip is always the most saturated row.", "section": "colors" },
+      { "name": "The One-Weight-Per-Line Rule", "body": "Item text stays at 400. Microsoft YaHei UI has no semibold, so any heavier weight renders CJK bold next to lighter Latin. The contract called for 15px semibold; the build settled on 400 for this reason, and the build is canonical.", "section": "typography" },
+      { "name": "The Still Digits Rule", "body": "Any countdown or clock figure uses tabular figures.", "section": "typography" },
+      { "name": "The One Lift Rule", "body": "Only the pinned strip casts a shadow. Preview rows, alerts and add slots are flat.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every length a multiple of the 4px unit, and every surface a full pill or circle.",
+      "Do express state only through the track, lap and overflow-lap triplet of its hue, and switch the whole strip's hue on a state change.",
+      "Do keep the ground near-opaque (at least 94% alpha) in preview rows, and fade ink and pale laps toward their own track instead.",
+      "Do set countdown figures at 20px, weight 700, with tabular figures, and item text at 15px, weight 400.",
+      "Do reserve the Lift shadow for the pinned strip."
+    ],
+    "donts": [
+      "Don't make the window dark or follow the OS theme; the pill is always light.",
+      "Don't let it read as a sticky note (便利贴) or a shrunken todo app (待办 App 缩小版): no checkboxes, no paper or tape, no list chrome, header or footer.",
+      "Don't add dividers or borders between or inside pills; the add slot's outline is the only stroke.",
+      "Don't set item text above weight 400 in this font stack; CJK and Latin weights split.",
+      "Don't use colour decoratively or on untimed items."
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Departure Line</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:720px;height:450px;overflow:hidden;background:#E6E8EB;font-family:"Segoe UI Variable Text","Segoe UI",sans-serif;color:#0B2A5B;position:relative}
+.col{position:absolute;display:flex;flex-direction:column;gap:20px}
+.hit{width:340px;height:52px;background:#F7F8FA;border-top:4px solid #0B2A5B;display:grid;grid-template-columns:34px 1fr 64px;align-items:center;column-gap:12px;padding:0 14px;position:relative;box-shadow:0 6px 18px rgba(11,42,91,.12)}
+.bar{position:absolute;left:0;bottom:0;height:4px;background:#2E9A5C}
+.bar.amber{background:#E3A21A}
+.hit.ended{border-top-color:#D52B1E}
+.ic{width:30px;height:30px;background:#0B2A5B;color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.txt{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.min{font-family:Bahnschrift,sans-serif;font-size:22px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.min.red{color:#D52B1E}
+.preview{position:absolute;left:356px;top:58px}
+.row{width:340px;height:44px;display:grid;grid-template-columns:34px 1fr 64px;align-items:center;column-gap:12px;padding:0 14px;border-bottom:1px solid #C6CEDA}
+.row .txt{font-weight:500}
+.row .min{font-size:16px}
+.cap{position:absolute;font-size:11px;letter-spacing:1.2px;color:#5B6B85;font-weight:700}
+</style></head><body>
+<div class="cap" style="left:24px;top:34px">静止 · 倒计时 · 暂停 · 到时</div>
+<div class="col" style="left:24px;top:58px">
+  <div class="hit"><span class="ic">写</span><span class="txt">写第三章：实验设计</span><span class="min"></span></div>
+  <div class="hit"><span class="bar" style="width:62%"></span><span class="ic">信</span><span class="txt">回复王老师的修改意见</span><span class="min">42′</span></div>
+  <div class="hit"><span class="bar amber" style="width:35%"></span><span class="ic">番</span><span class="txt">番茄钟 · 整理参考文献</span><span class="min">18′</span></div>
+  <div class="hit ended"><span class="ic">测</span><span class="txt">发版前跑一遍 e2e</span><span class="min red">0′</span></div>
+</div>
+<div class="cap" style="left:380px;top:34px">悬停 · 后续几班</div>
+<div class="preview" style="left:372px">
+  <div class="row" style="opacity:.3"><span class="ic">奶</span><span class="txt">买牛奶和鸡蛋</span><span class="min"></span></div>
+  <div class="row" style="opacity:.6"><span class="ic">会</span><span class="txt">10:30 组会，带上周数据</span><span class="min">65′</span></div>
+  <div class="hit"><span class="bar" style="width:62%"></span><span class="ic">信</span><span class="txt">回复王老师的修改意见</span><span class="min">42′</span></div>
+  <div class="row" style="opacity:.6"><span class="ic">报</span><span class="txt">提交本月报销单</span><span class="min"></span></div>
+  <div class="row" style="opacity:.3"><span class="ic">房</span><span class="txt">给房东发水电读数</span><span class="min"></span></div>
+</div>
+</body></html>

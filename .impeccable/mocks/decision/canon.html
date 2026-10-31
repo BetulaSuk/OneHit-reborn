@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Fluent</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:720px;height:450px;overflow:hidden;background:linear-gradient(135deg,#C9D6E8,#E9DCEB);font-family:"Segoe UI Variable Text","Segoe UI",sans-serif;color:#1B1B1B;position:relative}
+.col{position:absolute;display:flex;flex-direction:column;gap:20px}
+.hit{width:320px;height:52px;background:rgba(243,243,243,.86);border:1px solid rgba(0,0,0,.06);border-radius:8px;display:flex;align-items:center;gap:12px;padding:0 14px 0 10px;position:relative;overflow:hidden;box-shadow:0 8px 16px rgba(0,0,0,.14)}
+.bar{position:absolute;left:0;bottom:0;height:3px;background:#0F7B0F}
+.bar.p{background:#9D5D00}
+.hit.ended{border-color:#C42B1C}
+.ic{width:32px;height:32px;border-radius:6px;background:#0067C0;flex:none}
+.txt{flex:1;font-size:14px;white-space:nowrap;overflow:hidden}
+.t{font-size:14px;font-weight:600;color:#5D5D5D}
+.t.red{color:#C42B1C}
+.preview{position:absolute;left:372px;top:58px;width:320px;background:rgba(249,249,249,.9);border-radius:8px;padding:4px;box-shadow:0 8px 16px rgba(0,0,0,.14)}
+.row{height:44px;display:flex;align-items:center;gap:12px;padding:0 10px;border-radius:4px;font-size:14px}
+.row.sel{background:rgba(0,0,0,.05)}
+.row .ic{width:24px;height:24px}
+.cap{position:absolute;font-size:12px;color:#444}
+</style></head><body>
+<div class="cap" style="left:24px;top:32px">静止 · 倒计时 · 暂停 · 到时</div>
+<div class="col" style="left:24px;top:58px">
+  <div class="hit"><span class="ic"></span><span class="txt">写第三章：实验设计</span></div>
+  <div class="hit"><span class="bar" style="width:62%"></span><span class="ic"></span><span class="txt">回复王老师的修改意见</span><span class="t">42:18</span></div>
+  <div class="hit"><span class="bar p" style="width:35%"></span><span class="ic"></span><span class="txt">番茄钟 · 整理参考文献</span><span class="t">18:20</span></div>
+  <div class="hit ended"><span class="ic"></span><span class="txt">发版前跑一遍 e2e</span><span class="t red">00:00</span></div>
+</div>
+<div class="cap" style="left:372px;top:32px">悬停 · 弹出列表</div>
+<div class="preview">
+  <div class="row"><span class="ic"></span>买牛奶和鸡蛋</div>
+  <div class="row"><span class="ic"></span>10:30 组会，带上周数据</div>
+  <div class="row sel"><span class="ic"></span>回复王老师的修改意见</div>
+  <div class="row"><span class="ic"></span>提交本月报销单</div>
+  <div class="row"><span class="ic"></span>给房东发水电读数</div>
+</div>
+</body></html>

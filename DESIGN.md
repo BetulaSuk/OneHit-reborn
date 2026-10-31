@@ -161,6 +161,8 @@ A white and near-black ground with three state hues borrowed from the Activity r
 - **Title** (700, 20px, line-height 1, tabular figures): the remaining time, `m:ss` under an hour and `h:mm:ss` above. Tabular figures keep the digits still while they tick.
 - **Body** (400, 15px, line-height 1.2, -0.1px tracking): the item text, one line, truncated with an ellipsis. Also the add-slot label.
 
+The user can change the family and the body size (12 to 20px) in settings. The title follows at a third larger, rounded, and panel text steps down from the body size (body −1, hints −3). The sizes above are the defaults. Every style keeps the default stack as its fallback, so glyphs a chosen font lacks still come from Segoe UI or Microsoft YaHei UI.
+
 ### Named Rules
 **The One-Weight-Per-Line Rule.** Item text stays at 400. Microsoft YaHei UI has no semibold, so any heavier weight renders CJK bold next to lighter Latin. The contract called for 15px semibold; the build settled on 400 for this reason, and the build is canonical.
 
@@ -171,6 +173,8 @@ A white and near-black ground with three state hues borrowed from the Activity r
 Everything sits on a 4px unit. The strip is 320×52 (80×13 units). Inside it, the 36px disc starts 8px from the left edge, a 12px gap separates it from the text, the time sits 8px after the text with a 4px gap before its glyph, and 16px of padding closes the right side. A transparent 24px margin surrounds the content so the lift shadow is never clipped by the OS window.
 
 Preview rows stack on a 56px pitch (52px strip + 4px gap). By default the preview shows two rows above and two below the strip. Opacity falls by 0.375 per row of distance, to about 0.25 at the edge, and the rows outside that range are cut. The pinned strip never moves on screen: the window grows upward and downward around it. Ended Reminders stack directly above the strip at rest on the same pitch.
+
+**Screen edges.** Near the top or bottom edge, rows that have no room on one side go to the other, keeping the total; when one side holds more than two rows, the fade per row slows (0.75 ÷ rows) so the last row still lands near 0.25. When there is not room for a full set of rows below, the list runs upward: the items after the pinned one stack above it, and wheel-down still moves rows up. Ended Reminders go below the strip when they do not fit above. The inline editor and the detail card grow downward; when they would cross the bottom edge, the whole block rises to end 8px above it, and returns when it shrinks back. This is the one time the strip moves without being dragged.
 
 The window is a fixed-size desktop surface. There are no breakpoints.
 
@@ -184,7 +188,7 @@ The system is flat except for one lift. The pinned strip floats on a soft two-la
 - **Overflow cap** (Flutter `drawShadow`, elevation 3, `#00000055`): the end of the overflow lap.
 
 ### Named Rules
-**The One Lift Rule.** Only the pinned strip casts a shadow. Preview rows, alerts and add slots are flat.
+**The One Lift Rule.** Among the pills, only the pinned strip casts a shadow. Preview rows, alerts and add slots are flat. Detached panels (side editor, settings, about, the shortcut hint) carry the same Lift, because they float beside the strip rather than in its stack.
 
 ## Shapes
 
@@ -213,7 +217,7 @@ Painted, not a widget. Its width is `height + (width - height) × fraction`, wit
 A 36px Disc Grey circle that holds a 20px rounded Material icon in Near-Black, or the item's image cropped to cover.
 
 ### Add Slot
-A strip-sized Add Mint pill with a 1.5px Add Green outline, a 20px add icon and the "新建信息" label in Add Green body type, centred. It sits at both ends of the preview list, and it is the strip itself when nothing is pinned. **Open:** what clicking it does is not designed yet.
+A strip-sized Add Mint pill with a 1.5px Add Green outline, a 20px add icon and the "新建信息" label in Add Green body type, centred. It sits at both ends of the preview list, and it is the strip itself when nothing is pinned. Clicking it creates an item and opens the inline editor on it.
 
 ### Preview Stack
 - **Enter:** hovering grows the window, then the rows fade in over 180ms.
@@ -222,8 +226,19 @@ A strip-sized Add Mint pill with a 1.5px Add Green outline, a 20px add icon and 
 - **Pin and return:** clicking a row pins it and glides it into the strip position. Middle-click returns to the pinned item.
 - **Drag:** a plain drag on the strip moves the window. Long press lifts the item for tag drag: the window dims to 40% and the tag zones fade in beside it.
 
+### Panel
+The detached surface for everything that is not an item: the side editor, settings, about, and the shortcut hint.
+- **Shape:** Pill White card, 20px radius, Lift shadow, 16 to 20px padding. Settings is 400px wide and scrolls when taller than the screen; about is 340px; the hint is 240px.
+- **Placement:** beside the strip or list, on whichever side has room, vertically centred on it and kept 8px inside the screen.
+- **Sections:** a small bold Ink Soft label over the rows.
+- **Controls:** pills on Disc Grey that turn Near-Black with white text when selected (display choice, toggles); round Disc Grey icon buttons; steppers (− value +) in one Disc Grey pill.
+- **Key chip:** a 28px-high Disc Grey pill holding a key name in bold body type with tabular figures, hugging its label. While recording, it turns Near-Black and reads "按下按键…".
+
+### Tray and app mark
+The tray icon and the about panel's mark are the same drawing: a Near-Black disc carrying three quarters of a Ring Lime lap on a dim green track, the ring in its running state. The tray menu is the native Windows menu.
+
 ### Not designed yet
-These are open, not specified: the ring-close motion when a countdown reaches zero (today the strip simply switches to the red pill), the add-slot action, inline editing, tag drag and its drop zones, the detailed window, global hotkey feedback, and any persistence-related UI.
+These are open, not specified: the ring-close motion when a countdown reaches zero (today the strip simply switches to the red pill), and any persistence-related UI. Inline editing, tag drag and its drop zones, and the detail card are built, and the README describes them, but they have not been through a design pass.
 
 ## Do's and Don'ts
 

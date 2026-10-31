@@ -14,7 +14,7 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 
 | Where | What you do | What happens |
 | --- | --- | --- |
-| Strip | Hover | Neighbouring items fade in above and below; the strip stays put |
+| Strip | Hover | Neighbouring items fade in above and below; the strip stays put. Near the top or bottom of the screen the rows go to the side with room, and at the bottom the list runs upward |
 | Strip | Wheel / left click / middle click | Scroll / pin an item / return to the pinned one |
 | Strip | Click the time | Pause or resume the countdown |
 | Strip | Right click an item | Edit its text in place (Enter saves, Shift+Enter new line, Esc cancels; an emptied item is deleted) |
@@ -27,7 +27,7 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 | Strip or list | Long press and drag an item | The window dims and tag zones appear around it; drop on one to apply it |
 | Tag: 下沉 / 上浮 | Drop | Sinks the item to the bottom (dimmed, timer paused), or floats it back |
 | Tag: 时间 | Drop | Opens the ring dial: drag the knob, scroll the ring (±5 min), hours (±1 h) or minutes (±1 min); one lap per hour, up to 12 h; Reminder or Timer |
-| Tag: 详细 | Drop | The pinned strip grows a detail card with the full text |
+| Tag: 详细 | Drop | The pinned strip grows a detail card with the full text (raised to fit when the strip is near the bottom, as is the inline editor) |
 | Any item | Drop an image file or image URL on it | It becomes the item's icon (centre-cropped to 128 px) |
 | Any item | Drop or paste text | Appended to the item's text (with nothing selected, a paste creates a new item) |
 | Window | Paste an image (Ctrl+V) | Replaces the selected item's icon |
@@ -35,19 +35,52 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 Timers run only while their item is pinned; Reminders always run; sunk items
 pause. An ended Reminder that is not pinned stays above the strip.
 
-The OS window covers the screen's work area, but only the drawn surfaces take
-the mouse (a native click region), so the rest of the desktop stays usable.
+The OS window covers the chosen display's work area, but only the drawn
+surfaces take the mouse (a native click region), so the rest of the desktop
+stays usable.
 
-### Hotkeys
+### Tray icon
 
-| Default | Action |
+OneHit sits in the notification area (Windows may first put it in the hidden
+icons behind `^`).
+
+- **Left click:** shows the strip and gives it the keyboard.
+- **Right click:** 设置… (settings), 关于 OneHit (about: version, the prefix,
+  the data folder), 隐藏浮窗 / 显示浮窗 (hide or show), 退出 (quit).
+
+### Shortcuts
+
+Press the prefix, `Ctrl+Alt+O` by default, then one key within 3 seconds. A
+panel beside the strip lists the keys while it waits. The key after the
+prefix is taken by OneHit, so it never types into the app that has focus.
+
+| Key | Action |
 | --- | --- |
-| `Ctrl+Alt+O` | Hide or show OneHit |
-| `Ctrl+Alt+L` | Open or close the list |
+| `H` | Hide or show OneHit |
+| `L` | Open or close the list |
+| `N` | New item, open for editing |
+| `E` | Edit the pinned item |
+| `V` | Clipboard text or image as a new item |
+| `T` | Time dial for the pinned item |
+| `P` | Pause or resume the pinned item's countdown |
+| `J` / `K` | Next / previous item |
+| `S` | Settings |
 
-Global hotkeys that another app already holds fail silently (the Windows
-plugin does not report it); pick another key in `config.json` if one does
-nothing.
+If another app already holds the prefix, the settings panel says so in red;
+record a different one there.
+
+### Settings
+
+Open them from the tray menu or with the prefix then `S`. Changes apply at
+once and are saved.
+
+- **显示屏:** which display OneHit shows on. The strip keeps its relative spot.
+- **快捷键:** record a new prefix (it needs Ctrl, Alt, Shift or Win), and
+  change the key for each action. Taking a key another action uses swaps them.
+- **文字:** the font (any installed family, searchable) and size (12–20), with
+  a live preview.
+- **浮窗:** rows shown each way on hover, the detail card's height, and start
+  with Windows.
 
 ### Data and config
 
@@ -55,17 +88,23 @@ Saved under `%APPDATA%\dev.onehit\onehit\`:
 
 - `items.json` — the items, including icons and countdown state.
 - `state.json` — the strip's last position.
-- `config.json` — written with defaults on first run; edit it and restart.
+- `config.json` — what the settings panel writes. Editing it by hand works
+  too; restart OneHit afterwards.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `previewRadius` | `2` | Items shown above and below the strip on hover |
-| `detailHeight` | `160` | Height of the detail card |
-| `toggleHotkey` | `"ctrl+alt+o"` | `ctrl` / `alt` / `shift` / `win` + a letter, digit, `f1`–`f12`, `space`, `enter`, `tab`, `esc` or `` ` `` |
-| `listHotkey` | `"ctrl+alt+l"` | Same format |
+| `previewRadius` | `2` | Items shown above and below the strip on hover (0–6) |
+| `detailHeight` | `160` | Height of the detail card (60–600) |
+| `prefix` | `"ctrl+alt+o"` | One or more of `ctrl` / `alt` / `shift` / `win`, then a key name |
+| `keys` | see above | Action → key name, for `toggle`, `list`, `create`, `edit`, `paste`, `time`, `pause`, `next`, `previous`, `settings` |
+| `display` | `""` | Windows display name such as `\\.\DISPLAY1`; empty or missing means the primary display |
+| `fontFamily` | `""` | Font family; empty means Segoe UI Variable Display |
+| `fontSize` | `15` | Item text size (12–20); the time is a third larger |
 
-Bad values fall back to the defaults. Delete the data files to see the
-first-run tips again.
+Key names are `a`–`z`, `0`–`9`, `f1`–`f12`, `space`, `enter`, `tab`,
+`backspace`, `insert`, `delete`, `home`, `end`, `pageup`, `pagedown`, `left`,
+`up`, `right`, `down`, and `` ` - = [ ] \ ; ' , . / ``. Bad values fall back to
+the defaults. Delete the data files to see the first-run tips again.
 
 ### Plugins
 
@@ -95,10 +134,11 @@ flutter test
 
 ```
 lib/
-  main.dart                     startup: load data, size the window to the work area, plugins
-  config.dart                   config.json options
+  main.dart                     startup: load data, place the window on the chosen display, plugins
+  config.dart                   config.json options, shortcut actions, ConfigStore
   plugin.dart                   OneHitPlugin, TagZone, built-in tags
   theme/tokens.dart             design tokens: geometry, state colours, type, motion
+  theme/controls.dart           panel surface and controls shared by the editor and settings
   item/                         the item component, independent of the windows
     info_item.dart              InfoItem and TimeTag (countdown derived from the wall clock)
     item_store.dart             item list, 1 Hz tick, Timer/Reminder rules, edits
@@ -108,17 +148,21 @@ lib/
     item_gestures.dart          click / double click / right click / long press / move
     icon_image.dart             image file, URL or clipboard → 128 px icon
   shell/                        the screen-sized window that hosts everything
-    shell.dart                  state: mini/list, selection, tag drag, dial, drops, paste, hotkeys
+    shell.dart                  state: mini/list, selection, tag drag, dial, panels, drops, paste, tray, shortcuts
     regions.dart                HitRegion widgets → native click region
-    native.dart                 bridge to the runner: click region, OLE drops
-    hotkeys.dart                hotkey parsing and registration
+    native.dart                 bridge to the runner: click region, drops, tray, prefix, displays, fonts, autostart
+    keys.dart                   key names, virtual-key codes, prefix chords
+    prefix_hint.dart            the key list shown after the prefix
+  settings/settings_panel.dart  the settings panel
+  settings/about_panel.dart     the about panel and app mark
   mini_window/mini_window.dart  the strip: hover preview, scroll, pin, inline edit
   list_window/list_window.dart  the list and its side-editor layer
   editor/side_editor.dart       the side editor
   tags/tag_layer.dart           tag zones and the dragged item
   tags/time_dial.dart           the ring dial
-windows/runner/native_bridge.*  SetWindowRgn click region and OLE drop target
-test/                           countdown rules, JSON, store, config, hotkeys, zone layout, editor keys
+windows/runner/native_bridge.*  click region, OLE drop target, tray icon, prefix hotkey and keyboard hook,
+                                display placement and DPI, font list, start with Windows
+test/                           countdown rules, JSON, store, config, key bindings, zone layout, editor keys
 ```
 
 ## Docs

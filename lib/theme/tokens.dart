@@ -53,11 +53,17 @@ abstract final class OH {
 
   static const String face = 'Segoe UI Variable Display';
   static const List<String> faceFallback = ['Segoe UI', 'Microsoft YaHei UI'];
+  static const double bodySize = 15;
 
-  static const TextStyle itemText = TextStyle(
-    fontFamily: face,
+  /// The user's font (settings): the family for all text, and the body
+  /// size. The time keeps its 4:3 step above the body.
+  static String userFace = face;
+  static double userSize = bodySize;
+
+  static TextStyle get itemText => TextStyle(
+    fontFamily: userFace,
     fontFamilyFallback: faceFallback,
-    fontSize: 15,
+    fontSize: userSize,
     // Microsoft YaHei UI has no semibold: anything above 400 renders its CJK
     // bold next to lighter Latin. 400 keeps one weight per line and leaves
     // the bold time a clear step above.
@@ -67,14 +73,14 @@ abstract final class OH {
     color: ink,
   );
 
-  static const TextStyle timeText = TextStyle(
-    fontFamily: face,
+  static TextStyle get timeText => TextStyle(
+    fontFamily: userFace,
     fontFamilyFallback: faceFallback,
-    fontSize: 20,
+    fontSize: (userSize * 4 / 3).roundToDouble(),
     fontWeight: FontWeight.w700,
     height: 1,
     color: ink,
-    fontFeatures: [FontFeature.tabularFigures()],
+    fontFeatures: const [FontFeature.tabularFigures()],
   );
 
   static const Duration quick = Duration(milliseconds: 180);

@@ -208,8 +208,6 @@ class _ListWindowState extends State<ListWindow> {
         onSecondaryTap: () => _openEditor(item, focusText: true),
         onLongPressStart: (p) =>
             actions.tagDragStart(item, globalRect(context), p),
-        onLongPressMove: actions.tagDragMove,
-        onLongPressEnd: actions.tagDragEnd,
         child: AnimatedOpacity(
           opacity: item.sunk ? 0.45 : 1,
           duration: OH.quick,

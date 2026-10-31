@@ -65,6 +65,14 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     }
   }
 
+  if (native_bridge_) {
+    std::optional<LRESULT> result =
+        native_bridge_->HandleMessage(message, wparam, lparam);
+    if (result) {
+      return *result;
+    }
+  }
+
   switch (message) {
     case WM_FONTCHANGE:
       flutter_controller_->engine()->ReloadSystemFonts();

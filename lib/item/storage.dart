@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../config.dart';
 import 'info_item.dart';
 import 'item_store.dart';
 
@@ -69,6 +70,9 @@ class Storage {
       'anchor': [anchor.dx, anchor.dy],
     }),
   );
+
+  void saveConfig(OneHitConfig config) =>
+      _write(this.config, OneHitConfig.encode(config));
 
   /// Writes through a temp file so a crash never leaves half a file.
   Future<void> _write(File file, String text) async {

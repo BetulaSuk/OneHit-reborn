@@ -226,12 +226,10 @@ class _TimeDialState extends State<TimeDial> {
   }
 }
 
-final ButtonStyle _flat = TextButton.styleFrom(
-  foregroundColor: OH.ink,
-  textStyle: OH.itemText,
-);
+ButtonStyle get _flat =>
+    TextButton.styleFrom(foregroundColor: OH.ink, textStyle: OH.itemText);
 
-final TextStyle _digitStyle = OH.timeText.copyWith(fontSize: 40);
+TextStyle get _digitStyle => OH.timeText.copyWith(fontSize: 40);
 
 /// Two digits that scroll (wheel) or drag (up and down) on their own.
 class _Digits extends StatefulWidget {

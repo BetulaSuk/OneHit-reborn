@@ -18,10 +18,9 @@ abstract interface class ShellActions {
   /// The item that paste and drops without a target apply to.
   void select(InfoItem item);
 
-  /// Long press started on [item], whose row occupies [row] on screen.
+  /// Long press started on [item], whose row occupies [row] on screen. The
+  /// shell follows the pointer from here until it is released.
   void tagDragStart(InfoItem item, Rect row, Offset pointer);
-  void tagDragMove(Offset pointer);
-  void tagDragEnd(Offset pointer);
 
   void openTimeDial(InfoItem item);
 

@@ -9,7 +9,8 @@ import 'info_item_view.dart';
 /// * clicks are read from raw pointer events, so a single click fires at
 ///   once instead of waiting to see whether a double click follows;
 /// * right click (on release);
-/// * long press then drag, for dropping the item on a tag zone;
+/// * long press, which starts a drag to a tag zone (whoever handles
+///   [onLongPressStart] follows the pointer from there);
 /// * plain drag, for moving the window.
 class ItemGestures extends StatefulWidget {
   const ItemGestures({
@@ -19,8 +20,6 @@ class ItemGestures extends StatefulWidget {
     this.onDoubleTap,
     this.onSecondaryTap,
     this.onLongPressStart,
-    this.onLongPressMove,
-    this.onLongPressEnd,
     this.onPanStart,
     this.onPanUpdate,
     this.onPanEnd,
@@ -31,8 +30,6 @@ class ItemGestures extends StatefulWidget {
   final VoidCallback? onDoubleTap;
   final VoidCallback? onSecondaryTap;
   final void Function(Offset global)? onLongPressStart;
-  final void Function(Offset global)? onLongPressMove;
-  final void Function(Offset global)? onLongPressEnd;
   final VoidCallback? onPanStart;
   final void Function(Offset delta)? onPanUpdate;
   final VoidCallback? onPanEnd;
@@ -99,12 +96,6 @@ class _ItemGesturesState extends State<ItemGestures> {
         behavior: HitTestBehavior.opaque,
         onLongPressStart: longPress
             ? (d) => w.onLongPressStart!(d.globalPosition)
-            : null,
-        onLongPressMoveUpdate: longPress
-            ? (d) => w.onLongPressMove?.call(d.globalPosition)
-            : null,
-        onLongPressEnd: longPress
-            ? (d) => w.onLongPressEnd?.call(d.globalPosition)
             : null,
         onPanStart: pan ? (_) => w.onPanStart?.call() : null,
         onPanUpdate: pan ? (d) => w.onPanUpdate!(d.delta) : null,

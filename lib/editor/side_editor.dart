@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
 import '../item/item_store.dart';
+import '../theme/controls.dart';
 import '../theme/tokens.dart';
 
 /// Detached panel beside the list that edits every part of one item: text,
@@ -68,13 +69,7 @@ class _SideEditorState extends State<SideEditor> {
     return Container(
       width: SideEditor.width,
       padding: const EdgeInsets.all(OH.unit * 4),
-      decoration: const ShapeDecoration(
-        color: OH.ground,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(OH.unit * 5)),
-        ),
-        shadows: OH.lift,
-      ),
+      decoration: panelDecoration,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,8 +78,8 @@ class _SideEditorState extends State<SideEditor> {
             children: [
               ItemDisc(item: item, size: 28),
               const SizedBox(width: OH.unit * 2),
-              Expanded(child: Text('编辑信息', style: _title)),
-              _IconButton(
+              Expanded(child: Text('编辑信息', style: panelTitle)),
+              RoundIconButton(
                 icon: Icons.close_rounded,
                 label: '关闭',
                 onTap: widget.onClose,
@@ -117,7 +112,7 @@ class _SideEditorState extends State<SideEditor> {
             ),
           ),
           const SizedBox(height: OH.unit * 4),
-          _Section('图标'),
+          PanelSection('图标'),
           Wrap(
             spacing: OH.unit * 1.5,
             runSpacing: OH.unit * 1.5,
@@ -136,28 +131,28 @@ class _SideEditorState extends State<SideEditor> {
               children: [
                 ItemDisc(item: item, size: 32),
                 const SizedBox(width: OH.unit * 2),
-                Expanded(child: Text('图片图标', style: _body)),
-                _TextButton(
+                Expanded(child: Text('图片图标', style: panelBody)),
+                QuietButton(
                   label: '移除图片',
                   onTap: () => store.setImage(item, null),
                 ),
               ],
             )
           else
-            Text('拖入图片文件或链接、或选中后粘贴图片，即可设为图标', style: _hint),
+            Text('拖入图片文件或链接、或选中后粘贴图片，即可设为图标', style: panelHint),
           const SizedBox(height: OH.unit * 4),
-          _Section('标签'),
+          PanelSection('标签'),
           Wrap(
             spacing: OH.unit * 2,
             runSpacing: OH.unit * 2,
             children: [
-              _Toggle(
+              PillToggle(
                 label: '下沉',
                 icon: Icons.south_rounded,
                 on: item.sunk,
                 onTap: () => store.setSunk(item, !item.sunk),
               ),
-              _Toggle(
+              PillToggle(
                 label: '详细',
                 icon: Icons.unfold_more_rounded,
                 on: item.detail,
@@ -170,7 +165,7 @@ class _SideEditorState extends State<SideEditor> {
           const SizedBox(height: OH.unit * 4),
           Align(
             alignment: Alignment.centerLeft,
-            child: _TextButton(
+            child: QuietButton(
               label: '删除这条信息',
               icon: Icons.delete_outline_rounded,
               onTap: () {
@@ -183,26 +178,6 @@ class _SideEditorState extends State<SideEditor> {
       ),
     );
   }
-}
-
-final TextStyle _title = OH.itemText.copyWith(fontWeight: FontWeight.w700);
-final TextStyle _body = OH.itemText.copyWith(fontSize: 14);
-final TextStyle _hint = OH.itemText.copyWith(
-  fontSize: 12,
-  color: OH.inkSoft,
-  height: 1.4,
-);
-
-class _Section extends StatelessWidget {
-  const _Section(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: OH.unit * 2),
-    child: Text(label, style: _hint.copyWith(fontWeight: FontWeight.w700)),
-  );
 }
 
 class _TimeRow extends StatelessWidget {
@@ -222,7 +197,7 @@ class _TimeRow extends StatelessWidget {
     if (time == null) {
       return Align(
         alignment: Alignment.centerLeft,
-        child: _Toggle(
+        child: PillToggle(
           label: '时间',
           icon: Icons.timer_outlined,
           on: false,
@@ -250,18 +225,22 @@ class _TimeRow extends StatelessWidget {
               TimeState.running => '计时中',
               TimeState.paused => item.sunk ? '已下沉，暂停' : '已暂停',
               TimeState.ended => '已结束',
-            }, style: _hint),
+            }, style: panelHint),
             const Spacer(),
             if (state != TimeState.ended && !item.sunk)
-              _IconButton(
+              RoundIconButton(
                 icon: state == TimeState.running
                     ? Icons.pause_rounded
                     : Icons.play_arrow_rounded,
                 label: state == TimeState.running ? '暂停' : '继续',
                 onTap: () => store.toggleTime(item),
               ),
-            _IconButton(icon: Icons.tune_rounded, label: '调整时间', onTap: onDial),
-            _IconButton(
+            RoundIconButton(
+              icon: Icons.tune_rounded,
+              label: '调整时间',
+              onTap: onDial,
+            ),
+            RoundIconButton(
               icon: Icons.close_rounded,
               label: '移除时间',
               onTap: () => store.clearTime(item),
@@ -308,7 +287,7 @@ class KindSwitch extends StatelessWidget {
                 ),
                 child: Text(
                   label,
-                  style: _body.copyWith(color: on ? OH.ink : OH.inkSoft),
+                  style: panelBody.copyWith(color: on ? OH.ink : OH.inkSoft),
                 ),
               ),
             ),
@@ -359,111 +338,6 @@ class _Glyph extends StatelessWidget {
             color: selected ? OH.ink : OH.discFill,
           ),
           child: Icon(icon, size: 17, color: selected ? OH.ground : OH.ink),
-        ),
-      ),
-    );
-  }
-}
-
-class _Toggle extends StatelessWidget {
-  const _Toggle({
-    required this.label,
-    required this.icon,
-    required this.on,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool on;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: OH.quick,
-          height: 32,
-          padding: const EdgeInsets.symmetric(horizontal: OH.unit * 3),
-          decoration: BoxDecoration(
-            color: on ? OH.ink : OH.discFill,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: on ? OH.ground : OH.ink),
-              const SizedBox(width: OH.unit * 1.5),
-              Text(
-                label,
-                style: _body.copyWith(color: on ? OH.ground : OH.ink),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IconButton extends StatelessWidget {
-  const _IconButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: label,
-      waitDuration: const Duration(milliseconds: 600),
-      child: InkResponse(
-        onTap: onTap,
-        radius: 18,
-        child: SizedBox(
-          width: 32,
-          height: 32,
-          child: Icon(icon, size: 18, color: OH.ink, semanticLabel: label),
-        ),
-      ),
-    );
-  }
-}
-
-class _TextButton extends StatelessWidget {
-  const _TextButton({required this.label, required this.onTap, this.icon});
-
-  final String label;
-  final IconData? icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(OH.unit * 2),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: OH.unit * 2,
-          vertical: OH.unit * 1.5,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 16, color: OH.inkSoft),
-              const SizedBox(width: OH.unit),
-            ],
-            Text(label, style: _body.copyWith(color: OH.inkSoft)),
-          ],
         ),
       ),
     );

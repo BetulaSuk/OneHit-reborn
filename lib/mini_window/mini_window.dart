@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -211,7 +212,8 @@ class MiniWindowState extends State<MiniWindow>
     if (e is! PointerScrollEvent || !_preview || _busy) return;
     _wheel += e.scrollDelta.dy;
     if (_wheel.abs() < 40) return;
-    final step = _wheel.sign;
+    // Wheel down always moves the rows up, whichever way the list runs.
+    final step = _wheel.sign * (_flipped ? -1 : 1);
     _wheel = 0;
     final n = _store.visible.length;
     final next = (_target + step).clamp(-1.0, n.toDouble());
@@ -224,7 +226,7 @@ class MiniWindowState extends State<MiniWindow>
 
   void _select(InfoItem item, int index) {
     final offset = index - _scroll.value;
-    _store.pin(item);
+    if (item != _store.pinned) _store.pin(item);
     widget.actions.select(item);
     _scroll.value = -offset;
     _scrollTo(0);
@@ -262,8 +264,6 @@ class MiniWindowState extends State<MiniWindow>
         onLongPressStart: item == null
             ? null
             : (p) => actions.tagDragStart(item, globalRect(context), p),
-        onLongPressMove: actions.tagDragMove,
-        onLongPressEnd: actions.tagDragEnd,
         onPanStart: strip ? _moveStart : null,
         onPanUpdate: strip ? actions.moveBy : null,
         onPanEnd: strip ? _moveEnd : null,
@@ -286,13 +286,45 @@ class MiniWindowState extends State<MiniWindow>
     return OH.stripHeight;
   }
 
+  /// Rows that fit on screen above and below the strip.
+  (int, int) get _room {
+    final top = widget.anchor.dy;
+    final bottom = MediaQuery.sizeOf(context).height - top - OH.stripHeight;
+    return (
+      math.max(0, top ~/ OH.rowPitch),
+      math.max(0, bottom ~/ OH.rowPitch),
+    );
+  }
+
+  /// Preview rows above and below the strip: [_radius] each way, except
+  /// that rows with no room near a screen edge go to the other side.
+  (int, int) get _reach {
+    final (up, down) = _room;
+    final total = 2 * _radius;
+    final below = math.min<int>(total - math.min(_radius, up), down);
+    return (math.min<int>(total - below, up), below);
+  }
+
+  /// Near the bottom edge the list runs upward: the items after the pinned
+  /// one stack above the strip instead of off screen below it.
+  bool get _flipped {
+    final (up, down) = _room;
+    return down < _radius && up > down;
+  }
+
   @override
   Widget build(BuildContext context) {
     final alerts = _editing == null ? _store.alerts : const <InfoItem>[];
-    final above = _expanded
-        ? _radius * OH.rowPitch
-        : alerts.length * OH.rowPitch;
-    final below = _expanded ? _radius * OH.rowPitch : 0.0;
+    // Ended reminders stack above the strip, or below it at the top edge.
+    final alertsBelow = alerts.length > _room.$1;
+    final alertRows = alerts.length * OH.rowPitch;
+    final (up, down) = _reach;
+    final double above = _expanded
+        ? up * OH.rowPitch
+        : (alertsBelow ? 0 : alertRows);
+    final double below = _expanded
+        ? down * OH.rowPitch
+        : (alertsBelow ? alertRows : 0);
     final block = _stripBlock;
     final anchor = widget.anchor;
 
@@ -315,8 +347,8 @@ class MiniWindowState extends State<MiniWindow>
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: _expanded
-                      ? [_previewRows(above)]
-                      : _restRows(alerts, above),
+                      ? [_previewRows(above, up, down)]
+                      : _restRows(alerts, above, alertsBelow, block),
                 ),
               ),
             ),
@@ -326,7 +358,12 @@ class MiniWindowState extends State<MiniWindow>
     );
   }
 
-  List<Widget> _restRows(List<InfoItem> alerts, double stripTop) {
+  List<Widget> _restRows(
+    List<InfoItem> alerts,
+    double stripTop,
+    bool alertsBelow,
+    double block,
+  ) {
     final store = _store;
     final pinned = store.pinned;
     final editing = _editing;
@@ -372,7 +409,9 @@ class MiniWindowState extends State<MiniWindow>
       for (var k = 0; k < alerts.length; k++)
         Positioned(
           left: 0,
-          top: k * OH.rowPitch,
+          top: alertsBelow
+              ? stripTop + block + OH.rowGap + k * OH.rowPitch
+              : k * OH.rowPitch,
           child: _gestures(
             item: alerts[k],
             strip: false,
@@ -388,19 +427,23 @@ class MiniWindowState extends State<MiniWindow>
     ];
   }
 
-  Widget _previewRows(double stripTop) {
+  Widget _previewRows(double stripTop, int up, int down) {
     final store = _store;
     final items = store.visible;
+    final dir = _flipped ? -1 : 1;
     return AnimatedBuilder(
       animation: _scroll,
       builder: (context, _) {
         final pos = _scroll.value;
         final rows = <(double, Widget)>[];
         for (var i = -1; i <= items.length; i++) {
-          final d = (i - pos).abs();
-          if (d > _radius + 0.5) continue;
+          // Rows from the strip, negative above it.
+          final r = dir * (i - pos);
+          final d = r.abs();
+          final reach = r < 0 ? up : down;
+          if (d > reach + 0.5) continue;
           final atStrip = d < 0.5;
-          final fade = atStrip ? 1.0 : _fade(d);
+          final fade = atStrip ? 1.0 : _fade(d, reach);
           final item = (i >= 0 && i < items.length) ? items[i] : null;
           final Widget view;
           if (item == null) {
@@ -414,7 +457,9 @@ class MiniWindowState extends State<MiniWindow>
             view = _gestures(
               item: item,
               strip: atStrip,
-              onTap: atStrip ? null : () => _select(item, i),
+              // Includes the row scrolled into the strip's slot: clicking
+              // it pins it.
+              onTap: () => _select(item, i),
               child: InfoItemView(
                 item: item,
                 now: store.now,
@@ -430,7 +475,7 @@ class MiniWindowState extends State<MiniWindow>
             Positioned(
               key: ValueKey(item?.id ?? 'add$i'),
               left: 0,
-              top: stripTop + (i - pos) * OH.rowPitch,
+              top: stripTop + r * OH.rowPitch,
               child: AnimatedOpacity(
                 opacity: atStrip || _preview ? 1 : 0,
                 duration: OH.quick,
@@ -454,8 +499,12 @@ class MiniWindowState extends State<MiniWindow>
     );
   }
 
-  /// 1 at the strip, falling to ~0.25 at the preview edge.
-  double _fade(double d) =>
-      (1 - 0.375 * d).clamp(0.0, 1.0) *
-      (d > _radius ? (_radius + 0.5 - d) * 2 : 1);
+  /// 1 at the strip, falling to ~0.25 at the preview edge [reach] rows
+  /// away (slower when one side holds more than two rows).
+  double _fade(double d, int reach) {
+    if (reach == 0) return 0;
+    final step = math.min(0.375, 0.75 / reach);
+    return (1 - step * d).clamp(0.0, 1.0) *
+        (d > reach ? (reach + 0.5 - d) * 2 : 1);
+  }
 }

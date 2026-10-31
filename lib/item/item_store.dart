@@ -94,6 +94,17 @@ class ItemStore extends ChangeNotifier {
     _changed();
   }
 
+  /// Turns the floating items round by one: forward sends the pinned item
+  /// to the end, [back] pins the last one.
+  void rotate({bool back = false}) {
+    final v = visible;
+    if (v.length < 2) return;
+    if (back) return pin(v.last);
+    _items.remove(v.first);
+    _items.insert(_items.indexOf(v.last) + 1, v.first);
+    _changed();
+  }
+
   void setText(InfoItem item, String text) {
     item.text = text;
     _changed();

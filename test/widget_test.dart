@@ -5,7 +5,7 @@ import 'package:onehit/item/info_item.dart';
 import 'package:onehit/item/info_item_view.dart';
 import 'package:onehit/item/item_store.dart';
 import 'package:onehit/plugin.dart';
-import 'package:onehit/shell/hotkeys.dart';
+import 'package:onehit/shell/keys.dart';
 import 'package:onehit/tags/tag_layer.dart';
 
 void main() {
@@ -114,19 +114,36 @@ void main() {
     final c = OneHitConfig.fromJson({
       'previewRadius': 40,
       'detailHeight': 5,
-      'toggleHotkey': 7,
+      'prefix': 'q',
+      'fontSize': 99,
+      'keys': {'list': 'f4', 'edit': 'nope'},
     });
     expect(c.previewRadius, 6);
     expect(c.detailHeight, 60);
-    expect(c.toggleHotkey, 'ctrl+alt+o');
+    expect(c.prefix, 'ctrl+alt+o');
+    expect(c.fontSize, 20);
+    expect(c.keyFor(Command.list), 'f4');
+    expect(c.keyFor(Command.edit), 'e');
   });
 
-  test('hotkey specs parse', () {
-    final h = parseHotKey('Ctrl+Alt+Space')!;
-    expect(h.key, PhysicalKeyboardKey.space);
-    expect(h.modifiers, hasLength(2));
-    expect(parseHotKey('win+shift+f9')!.key, PhysicalKeyboardKey.f9);
-    expect(parseHotKey('hyper+q'), isNull);
+  test('binding a taken key swaps it', () {
+    final c = const OneHitConfig().bind(Command.list, 'n');
+    expect(c.keyFor(Command.list), 'n');
+    expect(c.keyFor(Command.create), 'l');
+    expect(c.commandFor('n'), Command.list);
+    expect(c.bind(Command.list, 'l').keys, isEmpty);
+  });
+
+  test('prefix chords parse', () {
+    final c = Chord.parse('Alt+Ctrl+Space')!;
+    expect(c.modifiers, ['ctrl', 'alt']);
+    expect(c.flags, 3);
+    expect(c.virtualKey, 0x20);
+    expect(c.label, 'Ctrl + Alt + Space');
+    expect(Chord.parse('win+shift+f9')!.virtualKey, 0x78);
+    expect(Chord.parse('hyper+q'), isNull);
+    expect(Chord.parse('q'), isNull);
+    expect(keyNameOf(0x4c), 'l');
   });
 
   test('tag zones sit outside the window and inside the screen', () {

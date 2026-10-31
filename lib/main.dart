@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:screen_retriever/screen_retriever.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'config.dart';
@@ -19,18 +18,22 @@ Future<void> main() async {
   await windowManager.ensureInitialized();
 
   final storage = Storage(await getApplicationSupportDirectory());
-  final config = await OneHitConfig.load(storage.config);
+  final config = ConfigStore(
+    await OneHitConfig.load(storage.config),
+    onSave: storage.saveConfig,
+  );
+  applyFont(config.value);
   final store = ItemStore(await storage.loadItems(), onSave: storage.saveItems);
   for (final p in plugins) {
     p.attach(store);
   }
 
-  // The window covers the primary display's work area (not the whole
+  // The window covers the chosen display's work area (not the whole
   // monitor, so Windows never treats it as a fullscreen app). Only the
   // drawn parts take the mouse; see shell/regions.dart.
-  final display = await screenRetriever.getPrimaryDisplay();
-  final origin = display.visiblePosition ?? Offset.zero;
-  final work = display.visibleSize ?? display.size;
+  final native = NativeBridge();
+  final work =
+      (await native.placeOn(config.value.display))?.$2 ?? const Size(1280, 720);
 
   final saved = await storage.loadAnchor();
   final fallback = Offset(
@@ -57,7 +60,8 @@ Future<void> main() async {
     await windowManager.setAsFrameless();
     await windowManager.setHasShadow(false);
     await windowManager.setBackgroundColor(Colors.transparent);
-    await windowManager.setBounds(origin & work);
+    // Dropping the frame can shift the bounds, so place it again.
+    await native.placeOn(config.value.display);
     await windowManager.show();
   });
 
@@ -67,7 +71,7 @@ Future<void> main() async {
         store: store,
         config: config,
         storage: storage,
-        native: NativeBridge(),
+        native: native,
         zones: [...builtInZones(), for (final p in plugins) ...p.zones],
         anchor: anchor,
       ),

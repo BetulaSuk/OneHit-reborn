@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../editor/side_editor.dart';
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
+import '../shell/scroll_steps.dart';
 import '../strings.dart';
 import '../theme/tokens.dart';
 
@@ -93,10 +93,6 @@ class _TimeDialState extends State<TimeDial> {
     });
   }
 
-  void _wheel(PointerSignalEvent e, double step) {
-    if (e is PointerScrollEvent) _add(e.scrollDelta.dy < 0 ? step : -step);
-  }
-
   KeyEventResult _key(FocusNode _, KeyEvent e) {
     if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
@@ -139,8 +135,9 @@ class _TimeDialState extends State<TimeDial> {
           children: [
             InfoItemView(item: widget.item, now: widget.now, lifted: false),
             const SizedBox(height: OH.unit * 4),
-            Listener(
-              onPointerSignal: (e) => _wheel(e, 5),
+            ScrollSteps(
+              // Wheel up turns the ring forward, five minutes a notch.
+              onStep: (d) => _add(-5.0 * d),
               child: GestureDetector(
                 onPanStart: (d) {
                   _lastAngle = null;
@@ -172,7 +169,6 @@ class _TimeDialState extends State<TimeDial> {
                 _Digits(
                   value: m ~/ 60,
                   label: strings.hours,
-                  onWheel: (e) => _wheel(e, 60),
                   onStep: (s) => _add(60.0 * s),
                 ),
                 Padding(
@@ -182,7 +178,6 @@ class _TimeDialState extends State<TimeDial> {
                 _Digits(
                   value: m % 60,
                   label: strings.minutes,
-                  onWheel: (e) => _wheel(e, 1),
                   onStep: (s) => _add(s.toDouble()),
                 ),
               ],
@@ -237,13 +232,13 @@ class _Digits extends StatefulWidget {
   const _Digits({
     required this.value,
     required this.label,
-    required this.onWheel,
     required this.onStep,
   });
 
   final int value;
   final String label;
-  final void Function(PointerSignalEvent e) onWheel;
+
+  /// +1 is up: dragging or scrolling up.
   final void Function(int steps) onStep;
 
   @override
@@ -263,8 +258,8 @@ class _DigitsState extends State<_Digits> {
         cursor: SystemMouseCursors.resizeUpDown,
         onEnter: (_) => setState(() => _hover = true),
         onExit: (_) => setState(() => _hover = false),
-        child: Listener(
-          onPointerSignal: widget.onWheel,
+        child: ScrollSteps(
+          onStep: (d) => widget.onStep(-d),
           child: GestureDetector(
             onVerticalDragUpdate: (d) {
               _drag -= d.delta.dy;

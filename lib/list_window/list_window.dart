@@ -12,6 +12,7 @@ import '../shell/beside.dart';
 import '../shell/regions.dart';
 import '../shell/shell_actions.dart';
 import '../strings.dart';
+import '../theme/controls.dart';
 import '../theme/tokens.dart';
 
 /// The detailed window: every item, floating ones first and sunk ones
@@ -53,6 +54,17 @@ class _ListWindowState extends State<ListWindow> {
   String? _editorId;
   bool _editorFocus = false;
 
+  /// The item's text when its editor opened. The editor saves as it types,
+  /// so this is what a cleared field goes back to.
+  String _editorBefore = '';
+
+  /// One focus node per row, so closing the editor can hand the keyboard
+  /// back to the row it came from.
+  final Map<String, FocusNode> _rowFocus = {};
+
+  FocusNode _focusFor(String id) =>
+      _rowFocus.putIfAbsent(id, () => FocusNode(debugLabel: 'row $id'));
+
   ItemStore get _store => widget.store;
 
   @override
@@ -65,24 +77,46 @@ class _ListWindowState extends State<ListWindow> {
   void dispose() {
     _store.removeListener(_onStore);
     _scroll.dispose();
+    for (final node in _rowFocus.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
-  void _onStore() => setState(() {});
+  void _onStore() {
+    _rowFocus.removeWhere((id, node) {
+      final gone = _store.byId(id) == null;
+      if (gone) node.dispose();
+      return gone;
+    });
+    setState(() {});
+  }
 
   Future<void> _openEditor(InfoItem item, {bool focusText = false}) async {
     widget.actions.select(item);
+    if (_editorId != item.id) _settleEditor();
     setState(() {
       _editorId = item.id;
       _editorFocus = focusText;
+      _editorBefore = item.text;
     });
     await windowManager.focus();
   }
 
   void _closeEditor() {
-    final item = _editorId == null ? null : _store.byId(_editorId!);
+    final id = _editorId;
+    _settleEditor();
     setState(() => _editorId = null);
-    if (item != null && item.text.trim().isEmpty) _store.remove(item);
+    final row = id == null ? null : _rowFocus[id];
+    if (row != null && row.context != null) row.requestFocus();
+  }
+
+  /// Settles the open editor's item when its text was left empty.
+  void _settleEditor() {
+    final item = _editorId == null ? null : _store.byId(_editorId!);
+    if (item != null && item.text.trim().isEmpty) {
+      _store.settleEmptyText(item, _editorBefore);
+    }
   }
 
   void _create() {
@@ -186,7 +220,16 @@ class _ListWindowState extends State<ListWindow> {
                 itemBuilder: (context, i) => Align(
                   alignment: Alignment.topCenter,
                   child: i == items.length
-                      ? ItemGestures(onTap: _create, child: AddSlot())
+                      ? FocusRing(
+                          onActivate: _create,
+                          child: Semantics(
+                            button: true,
+                            child: ItemGestures(
+                              onTap: _create,
+                              child: AddSlot(),
+                            ),
+                          ),
+                        )
                       : _row(items[i]),
                 ),
               ),
@@ -202,22 +245,34 @@ class _ListWindowState extends State<ListWindow> {
     final ring = widget.dropTarget == item.id
         ? OH.ink
         : (widget.selectedId == item.id ? OH.inkSoft : null);
+    // Tab or the arrows reach a row; Enter opens its editor, which holds
+    // everything the mouse gestures do.
     return Builder(
-      builder: (context) => ItemGestures(
-        onTap: () => actions.select(item),
-        onDoubleTap: () => _openEditor(item),
-        onSecondaryTap: () => _openEditor(item, focusText: true),
-        onLongPressStart: (p) =>
-            actions.tagDragStart(item, globalRect(context), p),
-        child: AnimatedOpacity(
-          opacity: item.sunk ? 0.45 : 1,
-          duration: OH.quick,
-          child: InfoItemView(
-            item: item,
-            now: _store.now,
-            lifted: false,
-            ring: ring,
-            onTimeTap: item.sunk ? null : () => _store.toggleTime(item),
+      builder: (context) => FocusRing(
+        focusNode: _focusFor(item.id),
+        onActivate: () => _openEditor(item, focusText: true),
+        child: Semantics(
+          container: true,
+          button: true,
+          selected: widget.selectedId == item.id,
+          hint: strings.editHint,
+          child: ItemGestures(
+            onTap: () => actions.select(item),
+            onDoubleTap: () => _openEditor(item),
+            onSecondaryTap: () => _openEditor(item, focusText: true),
+            onLongPressStart: (p) =>
+                actions.tagDragStart(item, globalRect(context), p),
+            child: AnimatedOpacity(
+              opacity: item.sunk ? 0.45 : 1,
+              duration: OH.quick,
+              child: InfoItemView(
+                item: item,
+                now: _store.now,
+                lifted: false,
+                ring: ring,
+                onTimeTap: item.sunk ? null : () => _store.toggleTime(item),
+              ),
+            ),
           ),
         ),
       ),

@@ -44,6 +44,8 @@ class Strings {
   String get pauseCountdown => pick('暂停倒计时', 'Pause countdown');
   String get resumeCountdown => pick('继续倒计时', 'Resume countdown');
   String get countdownEnded => pick('倒计时已结束', 'Countdown ended');
+  String countdownEndedFor(String text) =>
+      pick('倒计时结束：$text', 'Countdown ended: $text');
 
   // First-run tips
   String get tipHover =>
@@ -78,6 +80,27 @@ class Strings {
   String get editItem => pick('编辑信息', 'Edit item');
   String get icon => pick('图标', 'Icon');
   String get imageIcon => pick('图片图标', 'Image icon');
+
+  /// What Narrator calls each glyph in [itemIcons].
+  String iconName(String key) => switch (key) {
+    'notes' => pick('笔记', 'Notes'),
+    'mail' => pick('邮件', 'Mail'),
+    'groups' => pick('会议', 'Meeting'),
+    'book' => pick('阅读', 'Reading'),
+    'rocket' => pick('启动', 'Launch'),
+    'receipt' => pick('账单', 'Bill'),
+    'basket' => pick('购物', 'Shopping'),
+    'bolt' => pick('紧急', 'Urgent'),
+    'call' => pick('电话', 'Call'),
+    'code' => pick('代码', 'Code'),
+    'event' => pick('日程', 'Event'),
+    'flag' => pick('标记', 'Flag'),
+    'home' => pick('家', 'Home'),
+    'idea' => pick('想法', 'Idea'),
+    'link' => pick('链接', 'Link'),
+    'star' => pick('收藏', 'Star'),
+    _ => key,
+  };
   String get removeImage => pick('移除图片', 'Remove image');
   String get iconHint => pick(
     '拖入图片文件或链接、或选中后粘贴图片，即可设为图标',
@@ -99,6 +122,7 @@ class Strings {
 
   // List
   String get allItems => pick('全部信息', 'All items');
+  String get editHint => pick('按 Enter 编辑', 'Press Enter to edit');
   String get shrink =>
       pick('缩回浮窗（双击标题栏）', 'Back to the strip (double-click the header)');
 

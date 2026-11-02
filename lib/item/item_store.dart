@@ -110,6 +110,14 @@ class ItemStore extends ChangeNotifier {
     _changed();
   }
 
+  /// An edit ended with no text. An item that had text before the edit
+  /// ([before]) gets it back; one that never had any is dropped, unless it
+  /// carries an image or a time, which would go with it.
+  void settleEmptyText(InfoItem item, String before) {
+    if (before.trim().isNotEmpty) return setText(item, before);
+    if (item.image == null && item.time == null) remove(item);
+  }
+
   /// Pasted text goes on the end of the item's text.
   void appendText(InfoItem item, String text) {
     final add = text.trim();

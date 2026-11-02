@@ -12,6 +12,7 @@ import '../item/item_cards.dart';
 import '../item/item_gestures.dart';
 import '../item/item_store.dart';
 import '../shell/regions.dart';
+import '../shell/scroll_steps.dart';
 import '../shell/shell_actions.dart';
 import '../theme/tokens.dart';
 
@@ -67,7 +68,6 @@ class MiniWindowState extends State<MiniWindow>
   bool _preview = false;
 
   bool _moving = false;
-  double _wheel = 0;
   Timer? _leave;
 
   /// Bumped on every hover change so a pending expand or collapse can tell
@@ -150,7 +150,9 @@ class MiniWindowState extends State<MiniWindow>
     final text = _editText.text.trim();
     setState(() => _editing = null);
     if (text.isEmpty) {
-      _store.remove(item);
+      // The window commits on blur too, so a cleared field may only mean
+      // the user went to copy something.
+      _store.settleEmptyText(item, item.text);
     } else if (text != item.text) {
       _store.setText(item, text);
     }
@@ -160,7 +162,7 @@ class MiniWindowState extends State<MiniWindow>
     final item = _editing;
     if (item == null) return;
     setState(() => _editing = null);
-    if (item.text.isEmpty) _store.remove(item);
+    if (item.text.isEmpty) _store.settleEmptyText(item, '');
   }
 
   // Hover ----------------------------------------------------------------
@@ -217,13 +219,10 @@ class MiniWindowState extends State<MiniWindow>
     _scroll.animateTo(target, duration: OH.settle, curve: Curves.easeOutExpo);
   }
 
-  void _onWheel(PointerSignalEvent e) {
-    if (e is! PointerScrollEvent || !_preview || _busy) return;
-    _wheel += e.scrollDelta.dy;
-    if (_wheel.abs() < 40) return;
+  void _onScroll(int direction) {
+    if (!_preview || _busy) return;
     // Wheel down always moves the rows up, whichever way the list runs.
-    final step = _wheel.sign * (_flipped ? -1 : 1);
-    _wheel = 0;
+    final step = direction * (_flipped ? -1 : 1);
     final n = _store.visible.length;
     final next = (_target + step).clamp(-1.0, n.toDouble());
     if (next != _target) _scrollTo(next);
@@ -356,17 +355,21 @@ class MiniWindowState extends State<MiniWindow>
           child: HitRegion(
             radius: OH.radius,
             child: Listener(
-              onPointerSignal: _onWheel,
               onPointerDown: _onPointerDown,
-              child: MouseRegion(
-                hitTestBehavior: HitTestBehavior.opaque,
-                onEnter: (_) => _enter(),
-                onExit: (_) => _exit(),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: _expanded
-                      ? [_previewRows(above, up, down)]
-                      : _restRows(alerts, above, alertsBelow, block),
+              child: ScrollSteps(
+                wheel: 40,
+                pan: 40,
+                onStep: _onScroll,
+                child: MouseRegion(
+                  hitTestBehavior: HitTestBehavior.opaque,
+                  onEnter: (_) => _enter(),
+                  onExit: (_) => _exit(),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: _expanded
+                        ? [_previewRows(above, up, down)]
+                        : _restRows(alerts, above, alertsBelow, block),
+                  ),
                 ),
               ),
             ),

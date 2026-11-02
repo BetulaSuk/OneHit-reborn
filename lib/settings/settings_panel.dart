@@ -204,6 +204,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
                       label: name,
                       icon: Icons.translate_rounded,
                       on: strings.code == code,
+                      role: PillRole.choice,
                       onTap: () => _set(c.copyWith(language: code)),
                     ),
                 ],
@@ -223,6 +224,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
                       ].join(' · '),
                       icon: Icons.desktop_windows_outlined,
                       on: _showsOn(d),
+                      role: PillRole.choice,
                       onTap: () =>
                           _set(c.copyWith(display: d.primary ? '' : d.id)),
                     ),
@@ -235,6 +237,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 child: KeyChip(
                   label: prefix.label,
                   recording: recordingPrefix,
+                  semanticLabel: strings.prefix,
                   onTap: () => _record(_prefix),
                 ),
               ),
@@ -255,6 +258,7 @@ class _SettingsPanelState extends State<SettingsPanel> {
                   child: KeyChip(
                     label: keyLabel(c.keyFor(command)),
                     recording: _recording == command,
+                    semanticLabel: command.label,
                     onTap: () => _record(command),
                   ),
                 ),
@@ -461,37 +465,35 @@ class _FontChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          height: 32,
-          constraints: const BoxConstraints(maxWidth: 220),
-          padding: const EdgeInsets.only(left: OH.unit * 3, right: OH.unit * 2),
-          decoration: BoxDecoration(
-            color: OH.discFill,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  family.isEmpty ? strings.defaultShort : family,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: panelBody,
-                ),
+      label: strings.font,
+      child: Container(
+        height: 32,
+        constraints: const BoxConstraints(maxWidth: 220),
+        padding: const EdgeInsets.only(left: OH.unit * 3, right: OH.unit * 2),
+        decoration: BoxDecoration(
+          color: OH.discFill,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Text(
+                family.isEmpty ? strings.defaultShort : family,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: panelBody,
               ),
-              const SizedBox(width: OH.unit),
-              Icon(
-                open ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-                size: 18,
-                color: OH.ink,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(width: OH.unit),
+            Icon(
+              open ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+              size: 18,
+              color: OH.ink,
+            ),
+          ],
         ),
       ),
     );

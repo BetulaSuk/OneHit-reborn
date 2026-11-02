@@ -35,6 +35,132 @@ class PanelSection extends StatelessWidget {
   );
 }
 
+/// Lets the keyboard reach [child]: Tab stops on it, Enter or Space calls
+/// [onActivate], and an ink ring hugs its pill (or [circle]) while it has
+/// keyboard focus. Mouse use never shows the ring. Pointer input is left to
+/// the child; [Pressable] adds the click.
+class FocusRing extends StatefulWidget {
+  const FocusRing({
+    super.key,
+    required this.onActivate,
+    required this.child,
+    this.circle = false,
+    this.focusNode,
+    this.cursor = MouseCursor.defer,
+  });
+
+  final VoidCallback? onActivate;
+  final Widget child;
+  final bool circle;
+  final FocusNode? focusNode;
+  final MouseCursor cursor;
+
+  @override
+  State<FocusRing> createState() => _FocusRingState();
+}
+
+class _FocusRingState extends State<FocusRing> {
+  bool _ring = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final activate = widget.onActivate;
+    // Set 3px off the control so it also reads against an ink fill.
+    const side = BorderSide(color: OH.ink, width: 2);
+    return FocusableActionDetector(
+      enabled: activate != null,
+      focusNode: widget.focusNode,
+      mouseCursor: widget.cursor,
+      onShowFocusHighlight: (v) => setState(() => _ring = v),
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            activate?.call();
+            return null;
+          },
+        ),
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          widget.child,
+          if (_ring)
+            Positioned.fill(
+              left: -3,
+              top: -3,
+              right: -3,
+              bottom: -3,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: ShapeDecoration(
+                    shape: widget.circle
+                        ? const CircleBorder(side: side)
+                        : const StadiumBorder(side: side),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A control that works for every input: click, Tab then Enter or Space,
+/// and Narrator, which reads it as a button with [label] (or its own text)
+/// and, when given, its [toggled] or [selected] state.
+class Pressable extends StatelessWidget {
+  const Pressable({
+    super.key,
+    required this.onTap,
+    required this.child,
+    this.label,
+    this.toggled,
+    this.selected,
+    this.circle = false,
+  });
+
+  final VoidCallback? onTap;
+  final Widget child;
+  final String? label;
+  final bool? toggled;
+  final bool? selected;
+  final bool circle;
+
+  @override
+  Widget build(BuildContext context) => MergeSemantics(
+    child: Semantics(
+      button: true,
+      enabled: onTap != null,
+      toggled: toggled,
+      selected: selected,
+      label: label,
+      child: FocusRing(
+        onActivate: onTap,
+        circle: circle,
+        cursor: onTap == null ? MouseCursor.defer : SystemMouseCursors.click,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: child,
+        ),
+      ),
+    ),
+  );
+}
+
+/// How a [PillToggle] reads to Narrator.
+enum PillRole {
+  /// On or off, like sink or start with Windows.
+  toggle,
+
+  /// One of a set, like the language or the display.
+  choice,
+
+  /// A plain button that only looks like the others.
+  action,
+}
+
 class PillToggle extends StatelessWidget {
   const PillToggle({
     super.key,
@@ -42,38 +168,39 @@ class PillToggle extends StatelessWidget {
     required this.icon,
     required this.on,
     required this.onTap,
+    this.role = PillRole.toggle,
   });
 
   final String label;
   final IconData icon;
   final bool on;
   final VoidCallback onTap;
+  final PillRole role;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: OH.quick,
-          height: 32,
-          padding: const EdgeInsets.symmetric(horizontal: OH.unit * 3),
-          decoration: BoxDecoration(
-            color: on ? OH.ink : OH.discFill,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: on ? OH.ground : OH.ink),
-              const SizedBox(width: OH.unit * 1.5),
-              Text(
-                label,
-                style: panelBody.copyWith(color: on ? OH.ground : OH.ink),
-              ),
-            ],
-          ),
+      toggled: role == PillRole.toggle ? on : null,
+      selected: role == PillRole.choice ? on : null,
+      child: AnimatedContainer(
+        duration: OH.quick,
+        height: 32,
+        padding: const EdgeInsets.symmetric(horizontal: OH.unit * 3),
+        decoration: BoxDecoration(
+          color: on ? OH.ink : OH.discFill,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: on ? OH.ground : OH.ink),
+            const SizedBox(width: OH.unit * 1.5),
+            Text(
+              label,
+              style: panelBody.copyWith(color: on ? OH.ground : OH.ink),
+            ),
+          ],
         ),
       ),
     );
@@ -155,11 +282,15 @@ class KeyChip extends StatelessWidget {
     required this.label,
     this.recording = false,
     this.onTap,
+    this.semanticLabel,
   });
 
   final String label;
   final bool recording;
   final VoidCallback? onTap;
+
+  /// What the key is for, read before the key itself (`New item, N`).
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -186,10 +317,7 @@ class KeyChip extends StatelessWidget {
       ),
     );
     if (onTap == null) return chip;
-    return GestureDetector(
-      onTap: onTap,
-      child: MouseRegion(cursor: SystemMouseCursors.click, child: chip),
-    );
+    return Pressable(onTap: onTap, label: semanticLabel, child: chip);
   }
 }
 

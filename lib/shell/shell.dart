@@ -104,6 +104,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   @override
   void initState() {
     super.initState();
+    _ended = _endedIds();
     _store.addListener(_onStore);
     widget.native
       ..onDragOver = _dragOver
@@ -127,7 +128,31 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
     super.dispose();
   }
 
+  /// Countdowns already over, so Narrator hears each one end only once.
+  Set<String> _ended = {};
+
+  Set<String> _endedIds() => {
+    for (final i in _store.all)
+      if (i.time?.state(_store.now) == TimeState.ended) i.id,
+  };
+
+  void _announceEnded() {
+    final ended = _endedIds();
+    for (final i in _store.all) {
+      if (ended.contains(i.id) && !_ended.contains(i.id)) {
+        final text = i.text.trim().isEmpty ? strings.emptyItem : i.text;
+        SemanticsService.sendAnnouncement(
+          View.of(context),
+          strings.countdownEndedFor(text),
+          TextDirection.ltr,
+        );
+      }
+    }
+    _ended = ended;
+  }
+
   void _onStore() {
+    _announceEnded();
     if (_selectedId != null && _store.byId(_selectedId!) == null) {
       _selectedId = null;
     }
@@ -150,17 +175,18 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   /// relative spot.
   Future<void> _moveTo(String display) async {
     final from = _work;
+    final at = _at;
     final placed = await widget.native.placeOn(display);
     if (placed == null || !mounted) return;
     final to = placed.$2;
     const edge = OH.unit * 2;
     setState(() {
       _anchor = Offset(
-        (_anchor.dx / from.width * to.width).clamp(
+        (at.dx / from.width * to.width).clamp(
           edge,
           math.max(edge, to.width - OH.stripWidth - edge),
         ),
-        (_anchor.dy / from.height * to.height).clamp(
+        (at.dy / from.height * to.height).clamp(
           edge,
           math.max(edge, to.height - OH.stripHeight - edge),
         ),
@@ -177,8 +203,8 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
     final height = pinned != null && pinned.detail
         ? OH.stripHeight + _config.detailHeight
         : OH.stripHeight;
-    final top = MiniWindow.topFor(_anchor.dy, height, _work.height);
-    return Offset(_anchor.dx, top) & Size(OH.stripWidth, height);
+    final top = MiniWindow.topFor(_at.dy, height, _work.height);
+    return Offset(_at.dx, top) & Size(OH.stripWidth, height);
   }
 
   /// The list opens so that its first row lands where the strip was.
@@ -189,11 +215,17 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
       math.min(ListWindow.heightFor(_store.all.length), work.height / 2),
     );
     final want =
-        _anchor - const Offset(ListWindow.pad, ListWindow.header + OH.unit);
+        _at - const Offset(ListWindow.pad, ListWindow.header + OH.unit);
     return _keepOn(want, size) & size;
   }
 
   Rect get _windowRect => _list ? _listRect : _stripRect;
+
+  /// The saved position, kept on screen. A display change or a lower
+  /// resolution can leave [_anchor] past the work area; clamping here
+  /// instead of overwriting it lets the strip return to its spot when the
+  /// larger screen comes back.
+  Offset get _at => _keepOn(_anchor, const Size(OH.stripWidth, OH.stripHeight));
 
   Offset _keepOn(Offset at, Size size) {
     const edge = OH.unit * 2;
@@ -213,7 +245,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
         // Move the list as a whole, then derive the anchor back from it.
         final rect = _listRect;
         final moved = _keepOn(rect.topLeft + delta, rect.size);
-        _anchor += moved - rect.topLeft;
+        _anchor = _at + moved - rect.topLeft;
       } else {
         // Dragging a raised detail card starts from where it is drawn and
         // keeps the whole card on screen.
@@ -579,7 +611,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
                     : MiniWindow(
                         key: _mini,
                         store: _store,
-                        anchor: _anchor,
+                        anchor: _at,
                         actions: this,
                         config: _config,
                         dropTarget: _dropTarget,

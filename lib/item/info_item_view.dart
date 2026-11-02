@@ -243,8 +243,12 @@ class _TimeCellState extends State<_TimeCell>
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: interactive ? widget.onTap : null,
+          // One node: what a click does, and the time left as its value.
           child: Semantics(
+            container: true,
+            excludeSemantics: true,
             button: interactive,
+            value: formatRemaining(widget.remaining),
             label: switch (state) {
               TimeState.running => strings.pauseCountdown,
               TimeState.paused => strings.resumeCountdown,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../item/info_item.dart';
 import '../item/info_item_view.dart';
@@ -67,115 +68,127 @@ class _SideEditorState extends State<SideEditor> {
     // Text appended by a paste shows up unless the user is mid-typing.
     if (!_focus.hasFocus && _text.text != item.text) _text.text = item.text;
 
-    return Container(
-      width: SideEditor.width,
-      padding: const EdgeInsets.all(OH.unit * 4),
-      decoration: panelDecoration,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              ItemDisc(item: item, size: 28),
-              const SizedBox(width: OH.unit * 2),
-              Expanded(child: Text(strings.editItem, style: panelTitle)),
-              RoundIconButton(
-                icon: Icons.close_rounded,
-                label: strings.close,
-                onTap: widget.onClose,
-              ),
-            ],
-          ),
-          const SizedBox(height: OH.unit * 3),
-          TextField(
-            controller: _text,
-            focusNode: _focus,
-            minLines: 2,
-            maxLines: 5,
-            style: OH.itemText.copyWith(height: 1.45),
-            cursorColor: OH.ink,
-            onChanged: (t) => store.setText(item, t),
-            decoration: InputDecoration(
-              hintText: strings.writeSomething,
-              hintStyle: const TextStyle(color: OH.inkSoft),
-              filled: true,
-              fillColor: OH.discFill,
-              contentPadding: const EdgeInsets.all(OH.unit * 3),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(OH.unit * 3),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(OH.unit * 3),
-                borderSide: const BorderSide(color: OH.ink, width: 1.5),
-              ),
-            ),
-          ),
-          const SizedBox(height: OH.unit * 4),
-          PanelSection(strings.icon),
-          Wrap(
-            spacing: OH.unit * 1.5,
-            runSpacing: OH.unit * 1.5,
-            children: [
-              for (final e in itemIcons.entries)
-                _Glyph(
-                  icon: e.value,
-                  selected: item.image == null && item.icon == e.key,
-                  onTap: () => store.setIcon(item, e.key),
-                ),
-            ],
-          ),
-          const SizedBox(height: OH.unit * 2),
-          if (item.image != null)
+    // Esc closes the editor before it can close the list behind it.
+    return Focus(
+      skipTraversal: true,
+      onKeyEvent: (_, e) {
+        if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape) {
+          return KeyEventResult.ignored;
+        }
+        widget.onClose();
+        return KeyEventResult.handled;
+      },
+      child: Container(
+        width: SideEditor.width,
+        padding: const EdgeInsets.all(OH.unit * 4),
+        decoration: panelDecoration,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Row(
               children: [
-                ItemDisc(item: item, size: 32),
+                ItemDisc(item: item, size: 28),
                 const SizedBox(width: OH.unit * 2),
-                Expanded(child: Text(strings.imageIcon, style: panelBody)),
-                QuietButton(
-                  label: strings.removeImage,
-                  onTap: () => store.setImage(item, null),
+                Expanded(child: Text(strings.editItem, style: panelTitle)),
+                RoundIconButton(
+                  icon: Icons.close_rounded,
+                  label: strings.close,
+                  onTap: widget.onClose,
                 ),
               ],
-            )
-          else
-            Text(strings.iconHint, style: panelHint),
-          const SizedBox(height: OH.unit * 4),
-          PanelSection(strings.tags),
-          Wrap(
-            spacing: OH.unit * 2,
-            runSpacing: OH.unit * 2,
-            children: [
-              PillToggle(
-                label: strings.sink,
-                icon: Icons.south_rounded,
-                on: item.sunk,
-                onTap: () => store.setSunk(item, !item.sunk),
-              ),
-              PillToggle(
-                label: strings.detail,
-                icon: Icons.unfold_more_rounded,
-                on: item.detail,
-                onTap: () => store.setDetail(item, !item.detail),
-              ),
-            ],
-          ),
-          const SizedBox(height: OH.unit * 3),
-          _TimeRow(item: item, store: store, onDial: widget.onTimeDial),
-          const SizedBox(height: OH.unit * 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: QuietButton(
-              label: strings.deleteItem,
-              icon: Icons.delete_outline_rounded,
-              onTap: () {
-                widget.onClose();
-                store.remove(item);
-              },
             ),
-          ),
-        ],
+            const SizedBox(height: OH.unit * 3),
+            TextField(
+              controller: _text,
+              focusNode: _focus,
+              minLines: 2,
+              maxLines: 5,
+              style: OH.itemText.copyWith(height: 1.45),
+              cursorColor: OH.ink,
+              onChanged: (t) => store.setText(item, t),
+              decoration: InputDecoration(
+                hintText: strings.writeSomething,
+                hintStyle: const TextStyle(color: OH.inkSoft),
+                filled: true,
+                fillColor: OH.discFill,
+                contentPadding: const EdgeInsets.all(OH.unit * 3),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(OH.unit * 3),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(OH.unit * 3),
+                  borderSide: const BorderSide(color: OH.ink, width: 1.5),
+                ),
+              ),
+            ),
+            const SizedBox(height: OH.unit * 4),
+            PanelSection(strings.icon),
+            Wrap(
+              spacing: OH.unit * 1.5,
+              runSpacing: OH.unit * 1.5,
+              children: [
+                for (final e in itemIcons.entries)
+                  _Glyph(
+                    icon: e.value,
+                    name: strings.iconName(e.key),
+                    selected: item.image == null && item.icon == e.key,
+                    onTap: () => store.setIcon(item, e.key),
+                  ),
+              ],
+            ),
+            const SizedBox(height: OH.unit * 2),
+            if (item.image != null)
+              Row(
+                children: [
+                  ItemDisc(item: item, size: 32),
+                  const SizedBox(width: OH.unit * 2),
+                  Expanded(child: Text(strings.imageIcon, style: panelBody)),
+                  QuietButton(
+                    label: strings.removeImage,
+                    onTap: () => store.setImage(item, null),
+                  ),
+                ],
+              )
+            else
+              Text(strings.iconHint, style: panelHint),
+            const SizedBox(height: OH.unit * 4),
+            PanelSection(strings.tags),
+            Wrap(
+              spacing: OH.unit * 2,
+              runSpacing: OH.unit * 2,
+              children: [
+                PillToggle(
+                  label: strings.sink,
+                  icon: Icons.south_rounded,
+                  on: item.sunk,
+                  onTap: () => store.setSunk(item, !item.sunk),
+                ),
+                PillToggle(
+                  label: strings.detail,
+                  icon: Icons.unfold_more_rounded,
+                  on: item.detail,
+                  onTap: () => store.setDetail(item, !item.detail),
+                ),
+              ],
+            ),
+            const SizedBox(height: OH.unit * 3),
+            _TimeRow(item: item, store: store, onDial: widget.onTimeDial),
+            const SizedBox(height: OH.unit * 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: QuietButton(
+                label: strings.deleteItem,
+                icon: Icons.delete_outline_rounded,
+                onTap: () {
+                  widget.onClose();
+                  store.remove(item);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -202,6 +215,7 @@ class _TimeRow extends StatelessWidget {
           label: strings.time,
           icon: Icons.timer_outlined,
           on: false,
+          role: PillRole.action,
           onTap: onDial,
         ),
       );
@@ -276,23 +290,21 @@ class KindSwitch extends StatelessWidget {
         child: Tooltip(
           message: tip,
           waitDuration: const Duration(milliseconds: 600),
-          child: GestureDetector(
+          child: Pressable(
             onTap: () => onChanged(k),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: AnimatedContainer(
-                duration: OH.quick,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: on ? OH.ground : Colors.transparent,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: on ? OH.lift.sublist(1) : null,
-                ),
-                child: Text(
-                  label,
-                  style: panelBody.copyWith(color: on ? OH.ink : OH.inkSoft),
-                ),
+            selected: on,
+            child: AnimatedContainer(
+              duration: OH.quick,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: on ? OH.ground : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: on ? OH.lift.sublist(1) : null,
+              ),
+              child: Text(
+                label,
+                style: panelBody.copyWith(color: on ? OH.ink : OH.inkSoft),
               ),
             ),
           ),
@@ -319,30 +331,32 @@ class KindSwitch extends StatelessWidget {
 class _Glyph extends StatelessWidget {
   const _Glyph({
     required this.icon,
+    required this.name,
     required this.selected,
     required this.onTap,
   });
 
   final IconData icon;
+  final String name;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Pressable(
       onTap: onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: AnimatedContainer(
-          duration: OH.quick,
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: selected ? OH.ink : OH.discFill,
-          ),
-          child: Icon(icon, size: 17, color: selected ? OH.ground : OH.ink),
+      label: name,
+      selected: selected,
+      circle: true,
+      child: AnimatedContainer(
+        duration: OH.quick,
+        width: 30,
+        height: 30,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: selected ? OH.ink : OH.discFill,
         ),
+        child: Icon(icon, size: 17, color: selected ? OH.ground : OH.ink),
       ),
     );
   }

@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onehit/config.dart';
 import 'package:onehit/item/info_item.dart';
@@ -6,7 +8,9 @@ import 'package:onehit/item/info_item_view.dart';
 import 'package:onehit/item/item_store.dart';
 import 'package:onehit/plugin.dart';
 import 'package:onehit/shell/keys.dart';
+import 'package:onehit/shell/scroll_steps.dart';
 import 'package:onehit/tags/tag_layer.dart';
+import 'package:onehit/theme/controls.dart';
 
 void main() {
   final t0 = DateTime(2026, 1, 1, 9);
@@ -167,5 +171,96 @@ void main() {
         expect(r.right <= work.width && r.bottom <= work.height, isTrue);
       }
     }
+  });
+
+  test('an edit left empty keeps what the item had', () {
+    final kept = InfoItem(id: 'a', text: 'call the bank');
+    final blank = InfoItem(id: 'b', text: '');
+    final pictured = InfoItem(id: 'c', text: '', image: Uint8List(4));
+    final store = ItemStore([kept, blank, pictured]);
+
+    kept.text = '';
+    store.settleEmptyText(kept, 'call the bank');
+    expect(kept.text, 'call the bank');
+    expect(store.byId('a'), isNotNull);
+
+    store.settleEmptyText(blank, '');
+    expect(store.byId('b'), isNull);
+
+    store.settleEmptyText(pictured, '');
+    expect(store.byId('c'), isNotNull);
+    store.dispose();
+  });
+
+  testWidgets('touchpad pans and wheel notches both step', (tester) async {
+    final steps = <int>[];
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: ScrollSteps(
+          wheel: 40,
+          pan: 40,
+          onStep: steps.add,
+          child: const ColoredBox(color: Color(0xFFFFFFFF)),
+        ),
+      ),
+    );
+    final center = tester.getCenter(find.byType(ColoredBox));
+
+    // Fingers up 100px: content moves up, which scrolls down twice.
+    final pad = TestPointer(1, PointerDeviceKind.trackpad);
+    await tester.sendEventToBinding(pad.panZoomStart(center));
+    await tester.sendEventToBinding(
+      pad.panZoomUpdate(center, pan: const Offset(0, -100)),
+    );
+    await tester.sendEventToBinding(pad.panZoomEnd());
+    expect(steps, [1, 1]);
+
+    final mouse = TestPointer(2, PointerDeviceKind.mouse);
+    await tester.sendEventToBinding(mouse.hover(center));
+    await tester.sendEventToBinding(mouse.scroll(const Offset(0, -120)));
+    expect(steps, [1, 1, -1]);
+  });
+
+  testWidgets('Tab reaches a pill and Enter or Space presses it', (
+    tester,
+  ) async {
+    var on = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) => Center(
+            child: PillToggle(
+              label: 'Sink',
+              icon: Icons.south_rounded,
+              on: on,
+              onTap: () => setState(() => on = !on),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(on, isTrue);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pump();
+    expect(on, isFalse);
+    expect(
+      tester.getSemantics(find.byType(PillToggle)),
+      matchesSemantics(
+        label: 'Sink',
+        isButton: true,
+        hasToggledState: true,
+        isEnabled: true,
+        hasEnabledState: true,
+        isFocusable: true,
+        isFocused: true,
+        hasFocusAction: true,
+        hasTapAction: true,
+      ),
+    );
   });
 }

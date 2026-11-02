@@ -99,7 +99,40 @@ class OneHitApp extends StatelessWidget {
           selectionColor: Color(0x33111114),
         ),
       ),
+      builder: (context, child) => _TextSize(child: child!),
       home: Material(type: MaterialType.transparency, child: child),
     );
+  }
+}
+
+/// Reads the Windows text size into [OH.scale]. Geometry reads that value
+/// while it builds, so a change rebuilds the whole tree once.
+class _TextSize extends StatelessWidget {
+  const _TextSize({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale =
+        MediaQuery.textScalerOf(context).scale(OH.bodySize) / OH.bodySize;
+    if (scale != OH.scale) {
+      OH.scale = scale;
+      // The first build sets it before anything below reads it.
+      if (_built) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _rebuildAll(context as Element),
+        );
+      }
+    }
+    _built = true;
+    return child;
+  }
+
+  static bool _built = false;
+
+  static void _rebuildAll(Element element) {
+    element.markNeedsBuild();
+    element.visitChildren(_rebuildAll);
   }
 }

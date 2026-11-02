@@ -436,13 +436,13 @@ std::optional<LRESULT> NativeBridge::HandleMessage(UINT message, WPARAM wparam,
       // Windows suggests a rect scaled for the new DPI; the window keeps
       // covering the work area instead.
       if (placed_.empty()) break;
-      PlaceOn(placed_);
+      Replace();
       return 0;
     case WM_DISPLAYCHANGE:
-      if (!placed_.empty()) PlaceOn(placed_);
+      Replace();
       break;
     case WM_SETTINGCHANGE:
-      if (wparam == SPI_SETWORKAREA && !placed_.empty()) PlaceOn(placed_);
+      if (wparam == SPI_SETWORKAREA) Replace();
       break;
   }
   // Explorer restarted: the icon has to be added again.
@@ -510,16 +510,33 @@ void NativeBridge::AddTray() {
   tray_.uID = 1;
   tray_.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_SHOWTIP;
   tray_.uCallbackMessage = kTrayMessage;
-  if (!tray_.hIcon) {
-    UINT dpi = GetDpiForWindow(window_);
-    tray_.hIcon = static_cast<HICON>(LoadImageW(
-        GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_APP_ICON), IMAGE_ICON,
-        GetSystemMetricsForDpi(SM_CXSMICON, dpi),
-        GetSystemMetricsForDpi(SM_CYSMICON, dpi), 0));
-  }
+  if (!tray_.hIcon) LoadTrayIcon();
   tray_added_ = Shell_NotifyIconW(NIM_ADD, &tray_);
   tray_.uVersion = NOTIFYICON_VERSION_4;
   Shell_NotifyIconW(NIM_SETVERSION, &tray_);
+}
+
+// The tray is on the primary monitor's taskbar, so the icon is sized for
+// that monitor's DPI, not the window's.
+void NativeBridge::LoadTrayIcon() {
+  UINT dpi = 96, unused = 96;
+  GetDpiForMonitor(MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY),
+                   MDT_EFFECTIVE_DPI, &dpi, &unused);
+  auto icon = static_cast<HICON>(LoadImageW(
+      GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_APP_ICON), IMAGE_ICON,
+      GetSystemMetricsForDpi(SM_CXSMICON, dpi),
+      GetSystemMetricsForDpi(SM_CYSMICON, dpi), 0));
+  if (!icon) return;
+  if (tray_.hIcon) DestroyIcon(tray_.hIcon);
+  tray_.hIcon = icon;
+}
+
+void NativeBridge::Replace() {
+  if (!placed_.empty()) PlaceOn(wanted_);
+  if (tray_added_) {
+    LoadTrayIcon();
+    Shell_NotifyIconW(NIM_MODIFY, &tray_);
+  }
 }
 
 void NativeBridge::ShowTrayMenu(int x, int y) {
@@ -623,6 +640,7 @@ LRESULT CALLBACK NativeBridge::KeyboardProc(int code, WPARAM wparam,
 // it is gone) and returns {id, width, height} in that monitor's logical px.
 flutter::EncodableValue NativeBridge::PlaceOn(const std::string& device) {
   auto monitors = Monitors();
+  wanted_ = device;
   const Monitor* m = FindMonitor(monitors, device);
   if (!m) return flutter::EncodableValue();
   placed_ = Utf8(m->info.szDevice);

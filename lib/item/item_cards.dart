@@ -31,8 +31,8 @@ class DetailCard extends StatelessWidget {
     final image = item.image;
     return Container(
       width: OH.stripWidth,
-      height: OH.stripHeight + height,
-      decoration: const ShapeDecoration(
+      height: OH.stripHeight + height * OH.scale,
+      decoration: ShapeDecoration(
         color: OH.ground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(OH.radius)),
@@ -43,9 +43,7 @@ class DetailCard extends StatelessWidget {
           ? null
           : ShapeDecoration(
               shape: RoundedRectangleBorder(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(OH.radius),
-                ),
+                borderRadius: BorderRadius.all(Radius.circular(OH.radius)),
                 side: BorderSide(color: ring!, width: 2),
               ),
             ),
@@ -59,11 +57,11 @@ class DetailCard extends StatelessWidget {
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
+              padding: EdgeInsets.fromLTRB(
                 OH.padStart + OH.disc + OH.gap,
-                OH.unit,
+                OH.unit * OH.scale,
                 OH.padEnd,
-                OH.unit * 4,
+                OH.unit * 4 * OH.scale,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,13 +78,15 @@ class DetailCard extends StatelessWidget {
                     ),
                   ),
                   if (image != null) ...[
-                    const SizedBox(width: OH.gap),
+                    SizedBox(width: OH.gap),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(OH.unit * 3),
+                      borderRadius: BorderRadius.circular(
+                        OH.unit * 3 * OH.scale,
+                      ),
                       child: Image.memory(
                         image,
-                        width: 72,
-                        height: 72,
+                        width: 72 * OH.scale,
+                        height: 72 * OH.scale,
                         fit: BoxFit.cover,
                         filterQuality: FilterQuality.medium,
                       ),
@@ -114,7 +114,7 @@ class InlineEditor extends StatelessWidget {
     required this.onCancel,
   });
 
-  static const double height = OH.stripHeight + 84;
+  static double get height => OH.stripHeight + 84 * OH.scale;
 
   final InfoItem item;
   final TextEditingController controller;
@@ -142,17 +142,17 @@ class InlineEditor extends StatelessWidget {
     return Container(
       width: OH.stripWidth,
       height: height,
-      padding: const EdgeInsets.fromLTRB(
+      padding: EdgeInsets.fromLTRB(
         OH.padStart,
         OH.padStart,
         OH.padEnd,
-        OH.unit * 2,
+        OH.unit * 2 * OH.scale,
       ),
-      decoration: const ShapeDecoration(
+      decoration: ShapeDecoration(
         color: OH.ground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(OH.radius)),
-          side: BorderSide(color: OH.ink, width: 2),
+          side: const BorderSide(color: OH.ink, width: 2),
         ),
         shadows: OH.lift,
       ),
@@ -164,7 +164,7 @@ class InlineEditor extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ItemDisc(item: item),
-                const SizedBox(width: OH.gap),
+                SizedBox(width: OH.gap),
                 Expanded(
                   child: Focus(
                     onKeyEvent: _key,
@@ -182,7 +182,7 @@ class InlineEditor extends StatelessWidget {
                       decoration: InputDecoration(
                         isCollapsed: true,
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.only(top: 9),
+                        contentPadding: EdgeInsets.only(top: 9 * OH.scale),
                         hintText: strings.writeSomething,
                         hintStyle: const TextStyle(color: OH.inkSoft),
                       ),
@@ -193,7 +193,7 @@ class InlineEditor extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: OH.disc + OH.gap),
+            padding: EdgeInsets.only(left: OH.disc + OH.gap),
             child: Text(
               strings.inlineEditHint,
               style: OH.itemText.copyWith(fontSize: 12, color: OH.inkSoft),
@@ -231,8 +231,8 @@ class AddSlot extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.add_rounded, size: 20, color: OH.addInk),
-            const SizedBox(width: OH.unit),
+            Icon(Icons.add_rounded, size: 20 * OH.scale, color: OH.addInk),
+            SizedBox(width: OH.unit * OH.scale),
             Text(
               strings.newItem,
               style: OH.itemText.copyWith(color: OH.addInk),

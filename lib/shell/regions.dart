@@ -17,6 +17,9 @@ class RegionRegistry {
   final Set<RenderHitRegion> _boxes = {};
   // Never equal to a real region, so the first frame always sends.
   List<RRect>? _sent = [RRect.zero];
+  // Native scales the rects by the window's DPI, so moving to a monitor
+  // with another scale needs them sent again even when they are unchanged.
+  double _sentRatio = 0;
   int _fullHolds = 0;
 
   /// While held, the whole window takes the mouse: for drags that may leave
@@ -43,8 +46,13 @@ class RegionRegistry {
           if (b.attached && b.hasSize) b.globalRRect(),
       ];
     }
-    if (_same(next, _sent)) return;
+    final ratio =
+        SchedulerBinding.instance.platformDispatcher.implicitView
+            ?.devicePixelRatio ??
+        1;
+    if (ratio == _sentRatio && _same(next, _sent)) return;
     _sent = next;
+    _sentRatio = ratio;
     _native.setRegion(next);
   }
 

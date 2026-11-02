@@ -23,7 +23,7 @@ class TimeDial extends StatefulWidget {
     this.onRemove,
   });
 
-  static const double width = OH.stripWidth + OH.unit * 8;
+  static double get width => OH.stripWidth + OH.unit * 8 * OH.scale;
 
   final InfoItem item;
   final DateTime now;
@@ -299,7 +299,7 @@ class RingPainter extends CustomPainter {
 
   final double minutes;
 
-  static const double stroke = 26;
+  static double get stroke => 26 * OH.scale;
 
   @override
   void paint(Canvas canvas, Size size) {

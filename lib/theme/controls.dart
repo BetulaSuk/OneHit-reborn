@@ -185,16 +185,16 @@ class PillToggle extends StatelessWidget {
       selected: role == PillRole.choice ? on : null,
       child: AnimatedContainer(
         duration: OH.quick,
-        height: 32,
+        height: 32 * OH.scale,
         padding: const EdgeInsets.symmetric(horizontal: OH.unit * 3),
         decoration: BoxDecoration(
           color: on ? OH.ink : OH.discFill,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16 * OH.scale),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: on ? OH.ground : OH.ink),
+            Icon(icon, size: 16 * OH.scale, color: on ? OH.ground : OH.ink),
             const SizedBox(width: OH.unit * 1.5),
             Text(
               label,
@@ -226,11 +226,11 @@ class RoundIconButton extends StatelessWidget {
       waitDuration: const Duration(milliseconds: 600),
       child: InkResponse(
         onTap: onTap,
-        radius: 18,
+        radius: 18 * OH.scale,
         child: SizedBox(
-          width: 32,
-          height: 32,
-          child: Icon(icon, size: 18, color: OH.ink, semanticLabel: label),
+          width: 32 * OH.scale,
+          height: 32 * OH.scale,
+          child: Icon(icon, size: 18 * OH.scale, color: OH.ink, semanticLabel: label),
         ),
       ),
     );
@@ -263,7 +263,7 @@ class QuietButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16, color: OH.inkSoft),
+              Icon(icon, size: 16 * OH.scale, color: OH.inkSoft),
               const SizedBox(width: OH.unit),
             ],
             Text(label, style: panelBody.copyWith(color: OH.inkSoft)),
@@ -296,12 +296,12 @@ class KeyChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final chip = AnimatedContainer(
       duration: OH.quick,
-      height: 28,
-      constraints: const BoxConstraints(minWidth: 28),
+      height: 28 * OH.scale,
+      constraints: BoxConstraints(minWidth: 28 * OH.scale),
       padding: const EdgeInsets.symmetric(horizontal: OH.unit * 2.5),
       decoration: BoxDecoration(
         color: recording ? OH.ink : OH.discFill,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14 * OH.scale),
       ),
       // Hugs the label; a plain alignment would stretch to the full width.
       child: Align(
@@ -344,13 +344,13 @@ class PillStepper extends StatelessWidget {
           waitDuration: const Duration(milliseconds: 600),
           child: InkResponse(
             onTap: enabled ? () => onStep(direction) : null,
-            radius: 16,
+            radius: 16 * OH.scale,
             child: SizedBox(
-              width: 32,
-              height: 32,
+              width: 32 * OH.scale,
+              height: 32 * OH.scale,
               child: Icon(
                 icon,
-                size: 16,
+                size: 16 * OH.scale,
                 color: enabled ? OH.ink : OH.inkSoft.withValues(alpha: 0.4),
               ),
             ),
@@ -358,17 +358,17 @@ class PillStepper extends StatelessWidget {
         );
 
     return Container(
-      height: 32,
+      height: 32 * OH.scale,
       decoration: BoxDecoration(
         color: OH.discFill,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16 * OH.scale),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           button(Icons.remove_rounded, -1, canDown, strings.decrease),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 40),
+            constraints: BoxConstraints(minWidth: 40 * OH.scale),
             child: Text(
               label,
               textAlign: TextAlign.center,

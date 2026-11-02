@@ -45,6 +45,10 @@ class NativeBridge {
   void SetRegion(const flutter::EncodableList* rects);
   void SetTray(const flutter::EncodableMap& args);
   void AddTray();
+  void LoadTrayIcon();
+  // Covers the wanted monitor again and redraws the tray icon at the
+  // current DPI, after a display, DPI or work area change.
+  void Replace();
   void ShowTrayMenu(int x, int y);
   bool SetPrefix(const flutter::EncodableMap* args);
   void StartPrefix();
@@ -75,6 +79,9 @@ class NativeBridge {
 
   // Device name of the monitor whose work area the window covers.
   std::string placed_;
+  // The monitor asked for. While it is unplugged [placed_] is the primary,
+  // and the window moves back when it returns.
+  std::string wanted_;
 };
 
 #endif  // RUNNER_NATIVE_BRIDGE_H_

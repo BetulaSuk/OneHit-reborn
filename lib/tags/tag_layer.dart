@@ -6,9 +6,9 @@ import '../plugin.dart';
 import '../strings.dart';
 import '../theme/tokens.dart';
 
-const double _pillW = 152;
-const double _pillH = OH.stripHeight;
-const double _square = 120;
+double get _pillW => 152 * OH.scale;
+double get _pillH => OH.stripHeight;
+double get _square => 120 * OH.scale;
 const double _gap = OH.unit * 3;
 const double _away = OH.unit * 6;
 const double _edge = OH.unit * 2;
@@ -17,7 +17,7 @@ const double _edge = OH.unit * 2;
 /// room (right first), or a row below it when neither side fits.
 List<(TagZone, Rect)> layoutZones(List<TagZone> zones, Rect window, Size work) {
   Size sizeOf(TagZone z) =>
-      z.square ? const Size(_square, _square) : const Size(_pillW, _pillH);
+      z.square ? Size(_square, _square) : Size(_pillW, _pillH);
   final sizes = [for (final z in zones) sizeOf(z)];
   final colW = sizes.fold(0.0, (w, s) => s.width > w ? s.width : w);
   final colH =
@@ -197,8 +197,8 @@ class _Zone extends StatelessWidget {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(zone.icon, size: 36, color: OH.ink),
-                  const SizedBox(height: OH.unit * 2),
+                  Icon(zone.icon, size: 36 * OH.scale, color: OH.ink),
+                  SizedBox(height: OH.unit * 2 * OH.scale),
                   text,
                   if (hint != null)
                     Text(
@@ -213,8 +213,8 @@ class _Zone extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(zone.icon, size: 20, color: OH.ink),
-                  const SizedBox(width: OH.unit * 2),
+                  Icon(zone.icon, size: 20 * OH.scale, color: OH.ink),
+                  SizedBox(width: OH.unit * 2 * OH.scale),
                   text,
                 ],
               ),

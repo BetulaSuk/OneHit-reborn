@@ -28,7 +28,7 @@ class AboutPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 340,
+      width: 340 * OH.scale,
       padding: const EdgeInsets.all(OH.unit * 5),
       decoration: panelDecoration,
       child: Column(
@@ -37,7 +37,7 @@ class AboutPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              const AppMark(size: 48),
+              AppMark(size: 48 * OH.scale),
               const SizedBox(width: OH.unit * 3),
               Expanded(
                 child: Column(

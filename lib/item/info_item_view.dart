@@ -82,14 +82,14 @@ class InfoItemView extends StatelessWidget {
               Opacity(
                 opacity: fade,
                 child: Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                     left: OH.padStart,
                     right: OH.padEnd,
                   ),
                   child: Row(
                     children: [
                       ItemDisc(item: item),
-                      const SizedBox(width: OH.gap),
+                      SizedBox(width: OH.gap),
                       Expanded(
                         child: Text(
                           item.text.isEmpty ? strings.emptyItem : item.text,
@@ -103,7 +103,7 @@ class InfoItemView extends StatelessWidget {
                         ),
                       ),
                       if (time != null) ...[
-                        const SizedBox(width: OH.unit * 2),
+                        SizedBox(width: OH.unit * 2 * OH.scale),
                         _TimeCell(
                           remaining: time.remaining(now),
                           state: state!,
@@ -135,13 +135,16 @@ Color endInk(double fade) => Color.lerp(OH.endRing, OH.endInk, fade)!;
 
 /// The item's image, or its glyph on a grey disc.
 class ItemDisc extends StatelessWidget {
-  const ItemDisc({super.key, required this.item, this.size = OH.disc});
+  const ItemDisc({super.key, required this.item, this.size});
 
   final InfoItem item;
-  final double size;
+
+  /// Defaults to [OH.disc].
+  final double? size;
 
   @override
   Widget build(BuildContext context) {
+    final size = this.size ?? OH.disc;
     final image = item.image;
     return Container(
       width: size,
@@ -263,11 +266,11 @@ class _TimeCellState extends State<_TimeCell>
                   child: AnimatedIcon(
                     icon: AnimatedIcons.pause_play,
                     progress: _morph,
-                    size: 18,
+                    size: 18 * OH.scale,
                     color: ink,
                   ),
                 ),
-                const SizedBox(width: OH.unit),
+                SizedBox(width: OH.unit * OH.scale),
                 Text(
                   formatRemaining(widget.remaining),
                   style: OH.timeText.copyWith(color: ink),

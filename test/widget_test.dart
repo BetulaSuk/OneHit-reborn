@@ -5,12 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:onehit/config.dart';
 import 'package:onehit/item/info_item.dart';
 import 'package:onehit/item/info_item_view.dart';
+import 'package:onehit/item/item_gestures.dart';
 import 'package:onehit/item/item_store.dart';
 import 'package:onehit/plugin.dart';
 import 'package:onehit/shell/keys.dart';
 import 'package:onehit/shell/scroll_steps.dart';
 import 'package:onehit/tags/tag_layer.dart';
 import 'package:onehit/theme/controls.dart';
+import 'package:onehit/theme/tokens.dart';
 
 void main() {
   final t0 = DateTime(2026, 1, 1, 9);
@@ -190,6 +192,83 @@ void main() {
     store.settleEmptyText(pictured, '');
     expect(store.byId('c'), isNotNull);
     store.dispose();
+  });
+
+  test('strip geometry grows with Windows text size', () {
+    addTearDown(() => OH.scale = 1);
+    final height = OH.stripHeight;
+    final width = OH.stripWidth;
+    OH.scale = 1.5;
+    expect(OH.stripHeight, height * 1.5);
+    expect(OH.stripWidth, width * 1.5);
+    expect(OH.radius, OH.stripHeight / 2);
+  });
+
+  group('touch and pen on a row', () {
+    late List<String> got;
+
+    Future<Offset> pumpRow(WidgetTester tester) async {
+      got = [];
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: ItemGestures(
+              onTap: () => got.add('tap'),
+              onSecondaryTap: () => got.add('edit'),
+              onLongPressStart: (_) => got.add('drag'),
+              child: const SizedBox(width: 200, height: 52),
+            ),
+          ),
+        ),
+      );
+      return tester.getCenter(find.byType(SizedBox));
+    }
+
+    testWidgets('a quick touch tap is a tap', (tester) async {
+      final at = await pumpRow(tester);
+      final g = await tester.startGesture(at, kind: PointerDeviceKind.touch);
+      await g.up();
+      expect(got, ['tap']);
+    });
+
+    testWidgets('a touch hold released in place edits', (tester) async {
+      final at = await pumpRow(tester);
+      final g = await tester.startGesture(at, kind: PointerDeviceKind.touch);
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      expect(got, isEmpty);
+      await g.up();
+      expect(got, ['edit']);
+    });
+
+    testWidgets('a touch hold then move starts a tag drag', (tester) async {
+      final at = await pumpRow(tester);
+      final g = await tester.startGesture(at, kind: PointerDeviceKind.touch);
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      await g.moveBy(const Offset(0, 40));
+      expect(got, ['drag']);
+      await g.up();
+      expect(got, ['drag']);
+    });
+
+    testWidgets('a mouse long press starts the drag at once', (tester) async {
+      final at = await pumpRow(tester);
+      final g = await tester.startGesture(at, kind: PointerDeviceKind.mouse);
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 50));
+      expect(got, ['drag']);
+      await g.up();
+    });
+
+    testWidgets('the pen barrel button edits', (tester) async {
+      final at = await pumpRow(tester);
+      final g = await tester.startGesture(
+        at,
+        kind: PointerDeviceKind.stylus,
+        buttons: kPrimaryButton | kPrimaryStylusButton,
+      );
+      await g.up();
+      expect(got, ['edit']);
+    });
   });
 
   testWidgets('touchpad pans and wheel notches both step', (tester) async {

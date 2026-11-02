@@ -20,7 +20,7 @@ class SideEditor extends StatefulWidget {
     this.focusText = false,
   });
 
-  static const double width = 300;
+  static double get width => 300 * OH.scale;
 
   final InfoItem item;
   final ItemStore store;
@@ -88,7 +88,7 @@ class _SideEditorState extends State<SideEditor> {
           children: [
             Row(
               children: [
-                ItemDisc(item: item, size: 28),
+                ItemDisc(item: item, size: 28 * OH.scale),
                 const SizedBox(width: OH.unit * 2),
                 Expanded(child: Text(strings.editItem, style: panelTitle)),
                 RoundIconButton(
@@ -142,7 +142,7 @@ class _SideEditorState extends State<SideEditor> {
             if (item.image != null)
               Row(
                 children: [
-                  ItemDisc(item: item, size: 32),
+                  ItemDisc(item: item, size: 32 * OH.scale),
                   const SizedBox(width: OH.unit * 2),
                   Expanded(child: Text(strings.imageIcon, style: panelBody)),
                   QuietButton(
@@ -295,11 +295,11 @@ class KindSwitch extends StatelessWidget {
             selected: on,
             child: AnimatedContainer(
               duration: OH.quick,
-              height: 32,
+              height: 32 * OH.scale,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: on ? OH.ground : Colors.transparent,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(16 * OH.scale),
                 boxShadow: on ? OH.lift.sublist(1) : null,
               ),
               child: Text(
@@ -316,7 +316,7 @@ class KindSwitch extends StatelessWidget {
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: OH.discFill,
-        borderRadius: BorderRadius.circular(19),
+        borderRadius: BorderRadius.circular(19 * OH.scale),
       ),
       child: Row(
         children: [
@@ -350,13 +350,13 @@ class _Glyph extends StatelessWidget {
       circle: true,
       child: AnimatedContainer(
         duration: OH.quick,
-        width: 30,
-        height: 30,
+        width: 30 * OH.scale,
+        height: 30 * OH.scale,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: selected ? OH.ink : OH.discFill,
         ),
-        child: Icon(icon, size: 17, color: selected ? OH.ground : OH.ink),
+        child: Icon(icon, size: 17 * OH.scale, color: selected ? OH.ground : OH.ink),
       ),
     );
   }

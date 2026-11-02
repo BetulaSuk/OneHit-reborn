@@ -8,9 +8,11 @@ import 'info_item_view.dart';
 ///
 /// * clicks are read from raw pointer events, so a single click fires at
 ///   once instead of waiting to see whether a double click follows;
-/// * right click (on release);
+/// * right click (on release), or the pen's barrel button;
 /// * long press, which starts a drag to a tag zone (whoever handles
-///   [onLongPressStart] follows the pointer from there);
+///   [onLongPressStart] follows the pointer from there). Touch and pen
+///   have no right click, so for them the drag waits for the finger to
+///   move, and a hold released in place is the secondary tap instead;
 /// * plain drag, for moving the window.
 class ItemGestures extends StatefulWidget {
   const ItemGestures({
@@ -43,16 +45,29 @@ class _ItemGesturesState extends State<ItemGestures> {
   static const _slop = 6.0;
 
   int? _pointer;
+  PointerDeviceKind _kind = PointerDeviceKind.mouse;
   Offset _downAt = Offset.zero;
   Duration _downTime = Duration.zero;
   bool _secondary = false;
+  // A touch or pen long press that has neither moved nor lifted yet.
+  bool _held = false;
+
+  bool get _direct =>
+      _kind == PointerDeviceKind.touch || _kind == PointerDeviceKind.stylus;
+  double get _moveSlop => _direct ? kTouchSlop : _slop;
 
   Duration? _lastClick;
   Offset _lastClickAt = Offset.zero;
 
   void _down(PointerDownEvent e) {
-    _secondary = e.buttons == kSecondaryMouseButton;
-    final primary = e.buttons == kPrimaryMouseButton;
+    _kind = e.kind;
+    _held = false;
+    if (e.kind == PointerDeviceKind.stylus) {
+      _secondary = e.buttons & kPrimaryStylusButton != 0;
+    } else {
+      _secondary = e.buttons == kSecondaryMouseButton;
+    }
+    final primary = !_secondary && e.buttons & kPrimaryButton != 0;
     _pointer = (primary || _secondary) && !timeCellPointers.contains(e.pointer)
         ? e.pointer
         : null;
@@ -60,11 +75,31 @@ class _ItemGesturesState extends State<ItemGestures> {
     _downTime = e.timeStamp;
   }
 
+  void _move(PointerMoveEvent e) {
+    if (!_held || e.pointer != _pointer) return;
+    if ((e.position - _downAt).distance < _moveSlop) return;
+    _held = false;
+    widget.onLongPressStart?.call(e.position);
+  }
+
+  void _longPress(Offset global) {
+    if (_direct && !_secondary) {
+      _held = true;
+    } else {
+      widget.onLongPressStart!(global);
+    }
+  }
+
   void _up(PointerUpEvent e) {
     if (e.pointer != _pointer) return;
     _pointer = null;
+    if (_held) {
+      _held = false;
+      widget.onSecondaryTap?.call();
+      return;
+    }
     final quick = e.timeStamp - _downTime < _clickTime;
-    final still = (e.position - _downAt).distance < _slop;
+    final still = (e.position - _downAt).distance < _moveSlop;
     if (!quick || !still) return;
     if (_secondary) {
       widget.onSecondaryTap?.call();
@@ -73,7 +108,8 @@ class _ItemGesturesState extends State<ItemGestures> {
     final last = _lastClick;
     if (last != null &&
         e.timeStamp - last < _clickTime &&
-        (e.position - _lastClickAt).distance < _slop * 2) {
+        (e.position - _lastClickAt).distance <
+            (_direct ? kDoubleTapSlop : _slop * 2)) {
       _lastClick = null;
       widget.onDoubleTap?.call();
     } else {
@@ -90,12 +126,16 @@ class _ItemGesturesState extends State<ItemGestures> {
     final pan = w.onPanUpdate != null;
     return Listener(
       onPointerDown: _down,
+      onPointerMove: _move,
       onPointerUp: _up,
-      onPointerCancel: (_) => _pointer = null,
+      onPointerCancel: (_) {
+        _pointer = null;
+        _held = false;
+      },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onLongPressStart: longPress
-            ? (d) => w.onLongPressStart!(d.globalPosition)
+            ? (d) => _longPress(d.globalPosition)
             : null,
         onPanStart: pan ? (_) => w.onPanStart?.call() : null,
         onPanUpdate: pan ? (d) => w.onPanUpdate!(d.delta) : null,

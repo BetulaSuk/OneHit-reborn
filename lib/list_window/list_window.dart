@@ -28,7 +28,7 @@ class ListWindow extends StatefulWidget {
     this.dropTarget,
   });
 
-  static const double header = 44;
+  static double get header => 44 * OH.scale;
   static const double pad = OH.unit * 3;
 
   /// Card height for [count] items plus the add slot, before capping.
@@ -187,13 +187,13 @@ class _ListWindowState extends State<ListWindow> {
                       waitDuration: const Duration(milliseconds: 600),
                       child: InkResponse(
                         onTap: actions.openMini,
-                        radius: 18,
-                        child: const SizedBox(
-                          width: 32,
-                          height: 32,
+                        radius: 18 * OH.scale,
+                        child: SizedBox(
+                          width: 32 * OH.scale,
+                          height: 32 * OH.scale,
                           child: Icon(
                             Icons.close_fullscreen_rounded,
-                            size: 18,
+                            size: 18 * OH.scale,
                             color: OH.ink,
                           ),
                         ),

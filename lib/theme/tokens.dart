@@ -4,16 +4,23 @@ import 'package:flutter/painting.dart';
 abstract final class OH {
   static const double unit = 4;
 
-  // Strip geometry.
-  static const double stripWidth = 80 * unit; // 320
-  static const double stripHeight = 13 * unit; // 52
-  static const double rowGap = unit; // between preview rows
-  static const double rowPitch = stripHeight + rowGap;
-  static const double radius = stripHeight / 2; // full pill
-  static const double disc = 9 * unit; // 36
-  static const double padStart = 2 * unit;
-  static const double padEnd = 4 * unit;
-  static const double gap = 3 * unit;
+  /// Windows text size (Settings, Accessibility, Text size) as a factor,
+  /// set by the app root. Text follows it through the text scaler; the
+  /// pills and controls that hold text grow with it by this factor, so a
+  /// larger text size reads as the same strip, larger, never as clipped
+  /// text.
+  static double scale = 1;
+
+  // Strip geometry, at [scale].
+  static double get stripWidth => 80 * unit * scale; // 320
+  static double get stripHeight => 13 * unit * scale; // 52
+  static double get rowGap => unit * scale; // between preview rows
+  static double get rowPitch => stripHeight + rowGap;
+  static double get radius => stripHeight / 2; // full pill
+  static double get disc => 9 * unit * scale; // 36
+  static double get padStart => 2 * unit * scale;
+  static double get padEnd => 4 * unit * scale;
+  static double get gap => 3 * unit * scale;
 
   /// Transparent margin around the content so the shadow is not clipped.
   static const double margin = 6 * unit;

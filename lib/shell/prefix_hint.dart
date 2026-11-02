@@ -16,7 +16,7 @@ class PrefixHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 240,
+      width: 240 * OH.scale,
       padding: const EdgeInsets.all(OH.unit * 4),
       decoration: panelDecoration,
       child: Column(
@@ -30,7 +30,7 @@ class PrefixHint extends StatelessWidget {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 44,
+                    width: 44 * OH.scale,
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: KeyChip(label: keyLabel(config.keyFor(c))),

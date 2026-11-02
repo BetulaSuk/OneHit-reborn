@@ -201,7 +201,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   Rect get _stripRect {
     final pinned = _store.pinned;
     final height = pinned != null && pinned.detail
-        ? OH.stripHeight + _config.detailHeight
+        ? OH.stripHeight + _config.detailHeight * OH.scale
         : OH.stripHeight;
     final top = MiniWindow.topFor(_at.dy, height, _work.height);
     return Offset(_at.dx, top) & Size(OH.stripWidth, height);
@@ -215,7 +215,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
       math.min(ListWindow.heightFor(_store.all.length), work.height / 2),
     );
     final want =
-        _at - const Offset(ListWindow.pad, ListWindow.header + OH.unit);
+        _at - Offset(ListWindow.pad, ListWindow.header + OH.unit);
     return _keepOn(want, size) & size;
   }
 
@@ -225,7 +225,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
   /// resolution can leave [_anchor] past the work area; clamping here
   /// instead of overwriting it lets the strip return to its spot when the
   /// larger screen comes back.
-  Offset get _at => _keepOn(_anchor, const Size(OH.stripWidth, OH.stripHeight));
+  Offset get _at => _keepOn(_anchor, Size(OH.stripWidth, OH.stripHeight));
 
   Offset _keepOn(Offset at, Size size) {
     const edge = OH.unit * 2;

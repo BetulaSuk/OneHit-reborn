@@ -24,7 +24,7 @@ class SettingsPanel extends StatefulWidget {
     required this.onClose,
   });
 
-  static const double width = 400;
+  static double get width => 400 * OH.scale;
 
   final ConfigStore config;
   final NativeBridge native;
@@ -368,9 +368,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
               isDense: true,
               hintText: strings.searchFonts,
               hintStyle: panelBody.copyWith(color: OH.inkSoft),
-              prefixIcon: const Icon(
+              prefixIcon: Icon(
                 Icons.search_rounded,
-                size: 18,
+                size: 18 * OH.scale,
                 color: OH.inkSoft,
               ),
               filled: true,
@@ -383,12 +383,12 @@ class _SettingsPanelState extends State<SettingsPanel> {
           ),
           const SizedBox(height: OH.unit * 2),
           SizedBox(
-            height: 216,
+            height: 216 * OH.scale,
             child: fonts == null
                 ? Center(child: Text(strings.loadingFonts, style: panelHint))
                 : ListView.builder(
                     itemCount: options.length,
-                    itemExtent: 36,
+                    itemExtent: 36 * OH.scale,
                     itemBuilder: (context, i) {
                       final f = options[i];
                       final on = f.family == c.fontFamily;
@@ -414,9 +414,9 @@ class _SettingsPanelState extends State<SettingsPanel> {
                                 ),
                               ),
                               if (on)
-                                const Icon(
+                                Icon(
                                   Icons.check_rounded,
-                                  size: 18,
+                                  size: 18 * OH.scale,
                                   color: OH.ink,
                                 ),
                             ],
@@ -469,12 +469,12 @@ class _FontChip extends StatelessWidget {
       onTap: onTap,
       label: strings.font,
       child: Container(
-        height: 32,
-        constraints: const BoxConstraints(maxWidth: 220),
+        height: 32 * OH.scale,
+        constraints: BoxConstraints(maxWidth: 220 * OH.scale),
         padding: const EdgeInsets.only(left: OH.unit * 3, right: OH.unit * 2),
         decoration: BoxDecoration(
           color: OH.discFill,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16 * OH.scale),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -490,7 +490,7 @@ class _FontChip extends StatelessWidget {
             const SizedBox(width: OH.unit),
             Icon(
               open ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-              size: 18,
+              size: 18 * OH.scale,
               color: OH.ink,
             ),
           ],

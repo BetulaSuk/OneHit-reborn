@@ -74,6 +74,17 @@ class MiniWindowState extends State<MiniWindow>
   /// it has gone stale.
   int _hoverGen = 0;
 
+  // Touch has no hover or wheel: a tap on the strip opens the preview, a
+  // drag that starts on a preview row scrolls it, and it closes by itself.
+  static const _touchLinger = Duration(seconds: 5);
+  PointerDeviceKind _lastKind = PointerDeviceKind.mouse;
+  bool _downOnStrip = false;
+  int? _dragPointer;
+  Duration _dragDownTime = Duration.zero;
+  Offset _dragFrom = Offset.zero;
+  double _dragStart = 0;
+  bool _dragging = false;
+
   InfoItem? _editing;
   final _editText = TextEditingController();
   final _editFocus = FocusNode();
@@ -229,7 +240,59 @@ class MiniWindowState extends State<MiniWindow>
   }
 
   void _onPointerDown(PointerDownEvent e) {
+    _lastKind = e.kind;
+    final onStrip = _downOnStrip;
+    _downOnStrip = false;
     if (e.buttons & kMiddleMouseButton != 0) _scrollTo(0);
+    if (e.kind != PointerDeviceKind.touch || !_preview) return;
+    _lingerTouch();
+    if (onStrip || _busy) return;
+    _dragPointer = e.pointer;
+    _dragDownTime = e.timeStamp;
+    _dragFrom = e.position;
+    _dragging = false;
+  }
+
+  void _onPointerMove(PointerMoveEvent e) {
+    if (e.pointer != _dragPointer || _busy) return;
+    if (!_dragging) {
+      // Held first: that is a tag drag, not a scroll.
+      if (e.timeStamp - _dragDownTime > kLongPressTimeout) return;
+      if ((e.position.dy - _dragFrom.dy).abs() < kTouchSlop) return;
+      _dragging = true;
+      _dragFrom = e.position;
+      _dragStart = _scroll.value;
+    }
+    final dir = _flipped ? -1 : 1;
+    final rows = (e.position.dy - _dragFrom.dy) / OH.rowPitch;
+    final n = _store.visible.length;
+    _target = (_dragStart - dir * rows).clamp(-1.0, n.toDouble());
+    _scroll.value = _target;
+    _lingerTouch();
+  }
+
+  void _onPointerEnd(PointerEvent e) {
+    if (e.pointer != _dragPointer) return;
+    _dragPointer = null;
+    if (!_dragging) return;
+    _dragging = false;
+    _scrollTo(_scroll.value.roundToDouble());
+  }
+
+  /// A touch tap on the strip opens or closes the preview.
+  void _touchPreview() {
+    if (_lastKind != PointerDeviceKind.touch) return;
+    if (_preview) {
+      _exit();
+      return;
+    }
+    _enter();
+    _lingerTouch();
+  }
+
+  void _lingerTouch() {
+    _leave?.cancel();
+    _leave = Timer(_touchLinger, _exit);
   }
 
   void _select(InfoItem item, int index) {
@@ -264,7 +327,7 @@ class MiniWindowState extends State<MiniWindow>
     VoidCallback? onTap,
   }) {
     final actions = widget.actions;
-    return Builder(
+    final gestures = Builder(
       builder: (context) => ItemGestures(
         onTap: onTap,
         onDoubleTap: strip ? actions.openList : null,
@@ -277,6 +340,12 @@ class MiniWindowState extends State<MiniWindow>
         onPanEnd: strip ? _moveEnd : null,
         child: child,
       ),
+    );
+    if (!strip) return gestures;
+    // Runs before the outer listener sees the same press.
+    return Listener(
+      onPointerDown: (_) => _downOnStrip = true,
+      child: gestures,
     );
   }
 
@@ -291,7 +360,7 @@ class MiniWindowState extends State<MiniWindow>
     if (_editing != null) return InlineEditor.height;
     final pinned = _store.pinned;
     if (!expanded && pinned != null && pinned.detail) {
-      return OH.stripHeight + widget.config.detailHeight;
+      return OH.stripHeight + widget.config.detailHeight * OH.scale;
     }
     return OH.stripHeight;
   }
@@ -356,6 +425,9 @@ class MiniWindowState extends State<MiniWindow>
             radius: OH.radius,
             child: Listener(
               onPointerDown: _onPointerDown,
+              onPointerMove: _onPointerMove,
+              onPointerUp: _onPointerEnd,
+              onPointerCancel: _onPointerEnd,
               child: ScrollSteps(
                 wheel: 40,
                 pan: 40,
@@ -409,6 +481,7 @@ class MiniWindowState extends State<MiniWindow>
       strip = _gestures(
         item: pinned,
         strip: true,
+        onTap: _touchPreview,
         child: pinned.detail
             ? DetailCard(
                 item: pinned,
@@ -479,8 +552,11 @@ class MiniWindowState extends State<MiniWindow>
               item: item,
               strip: atStrip,
               // Includes the row scrolled into the strip's slot: clicking
-              // it pins it.
-              onTap: () => _select(item, i),
+              // it pins it, and a touch tap there also closes the preview.
+              onTap: () {
+                _select(item, i);
+                if (atStrip) _touchPreview();
+              },
               child: InfoItemView(
                 item: item,
                 now: store.now,

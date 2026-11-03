@@ -227,11 +227,14 @@ A strip-sized Add Mint pill with a 1.5px Add Green outline, a 20px add icon and 
 - **Drag:** a plain drag on the strip moves the window. Long press lifts the item for tag drag: the window dims to 40% and the tag zones fade in beside it.
 
 ### Panel
-The detached surface for everything that is not an item: the side editor, settings, about, and the shortcut hint.
-- **Shape:** Pill White card, 20px radius, Lift shadow, 16 to 20px padding. Settings is 400px wide and scrolls when taller than the screen; about is 340px; the hint is 240px.
+The detached surface for everything that is not an item: the side editor, the time dial, settings, about, and the shortcut hint.
+- **Shape:** Pill White card, 20px radius, Lift shadow, 16 to 20px padding. Settings is 400px wide and scrolls when taller than the screen; about is 340px; the hint is 300px. Panel lengths scale with the Windows text size.
 - **Placement:** beside the strip or list, on whichever side has room, vertically centred on it and kept 8px inside the screen.
 - **Sections:** a small bold Ink Soft label over the rows.
 - **Controls:** pills on Disc Grey that turn Near-Black with white text when selected (display choice, toggles); round Disc Grey icon buttons; steppers (− value +) in one Disc Grey pill.
+- **Focus:** a control with keyboard focus gets an Ink ring hugging its pill. It shows only while the keyboard is in use, never on click.
+- **Preview well:** the font preview's strip sits in a Disc Grey well, concentric with the pill, so a white pill keeps its edge on the white panel.
+- **Time dial:** the ring, then hours : minutes in title type with "Hours" and "Minutes" in Ink Soft under the digits, so 00 : 19 never reads as seconds. It opens where the side editor sits, and the editor steps aside until the dial closes.
 - **Key chip:** a 28px-high Disc Grey pill holding a key name in bold body type with tabular figures, hugging its label. While recording, it turns Near-Black and reads "按下按键…".
 
 ### Tray and app mark

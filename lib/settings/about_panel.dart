@@ -18,7 +18,7 @@ class AboutPanel extends StatelessWidget {
   });
 
   /// Keep in step with `version` in pubspec.yaml.
-  static const String version = '1.0.1';
+  static const String version = '1.1.0';
 
   final String dataDir;
   final String prefix;

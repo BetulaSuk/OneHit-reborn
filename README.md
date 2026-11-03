@@ -39,7 +39,7 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 | Strip | Hover | Neighbouring items fade in above and below; the strip stays put. Near the top or bottom of the screen the rows go to the side with room, and at the bottom the list runs upward |
 | Strip | Wheel / left click / middle click | Scroll / pin an item / return to the pinned one |
 | Strip | Click the time | Pause or resume the countdown |
-| Strip | Right click an item | Edit its text in place (Enter saves, Shift+Enter new line, Esc cancels; an emptied item is deleted) |
+| Strip | Right click an item | Edit its text in place (Enter saves, Shift+Enter new line, Esc cancels; clearing the text puts the old text back, and a new item left empty is removed) |
 | Strip | Click the add slot | Creates an item and opens it for editing |
 | Strip | Drag | Moves the window; the position is saved |
 | Strip | Double click | Opens the list (at most half the screen high) |
@@ -48,7 +48,7 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 | List | Double click or right click an item | Opens the side editor beside its row: text, icon palette, tags, delete. It follows the row and closes for good once the row scrolls out of view |
 | Strip or list | Long press and drag an item | The window dims and tag zones appear around it; drop on one to apply it |
 | Tag: Sink / Float | Drop | Sinks the item to the bottom (dimmed, timer paused), or floats it back |
-| Tag: Countdown | Drop | Opens the ring dial: drag the knob, scroll the ring (±5 min), hours (±1 h) or minutes (±1 min); one lap per hour, up to 12 h; Reminder or Timer |
+| Tag: Countdown | Drop | Opens the ring dial: drag the knob, scroll the ring (±5 min), hours (±1 h) or minutes (±1 min); ↑ / ↓ (±1 min); one lap per hour, up to 12 h; Reminder or Timer. Enter sets, Esc cancels |
 | Tag: Expand / Collapse | Drop | The pinned strip grows a detail card with the full text (raised to fit when the strip is near the bottom, as is the inline editor) |
 | Any item | Drop an image file or image URL on it | It becomes the item's icon (centre-cropped to 128 px) |
 | Any item | Drop or paste text | Appended to the item's text (with nothing selected, a paste creates a new item) |
@@ -89,15 +89,33 @@ prefix is taken by OneHit, so it never types into the app that has focus.
 | `H` | Hide or show OneHit |
 | `L` | Open or close the list |
 | `N` | New item, open for editing |
-| `E` | Edit the pinned item |
+| `E` | Edit the current item (the one in the strip) |
 | `V` | Clipboard text or image as a new item |
-| `T` | Time dial for the pinned item |
-| `P` | Pause or resume the pinned item's countdown |
+| `T` | Open the countdown dial for the current item |
+| `P` | Pause or resume the current item's countdown |
 | `J` / `K` | Next / previous item |
 | `S` | Settings |
 
 If another app already holds the prefix, the settings panel says so in red;
 record a different one there.
+
+### Keyboard, Narrator, touch and pen
+
+- **Keyboard:** Tab moves through the list rows, the add slot, and the
+  controls in the side editor, dial and settings; Enter or Space activates
+  them. A focus ring shows only while you use the keyboard. Enter on a list
+  row opens its side editor with the text ready to type; Esc closes it and
+  puts focus back on the row.
+- **Narrator:** items read as their text and the time left, and Narrator
+  announces a countdown that ends.
+- **Touch and pen:** tap the strip to open the preview and drag it to
+  scroll; it closes after 5 seconds untouched. Hold an item and lift to edit
+  it (what a right click does), or hold and move to drag it to the tag
+  zones. The pen's barrel button works as a right click.
+- **Scaling:** OneHit follows Windows Settings → Accessibility → Text size,
+  stays sharp across monitors with different scaling, and goes back to its
+  display when that display is plugged in again. Precision touchpads scroll
+  the strip and the dial like a wheel.
 
 ### Settings
 
@@ -192,7 +210,7 @@ lib/
     storage.dart                JSON files in the app support folder
     info_item_view.dart         the pill: icon disc, text, time cell, LapPainter
     item_cards.dart             detail card, inline editor, add slot
-    item_gestures.dart          click / double click / right click / long press / move
+    item_gestures.dart          click / double click / right click / long press / move, for mouse, touch and pen
     icon_image.dart             image file, URL or clipboard → 128 px icon
   shell/                        the screen-sized window that hosts everything
     shell.dart                  state: mini/list, selection, tag drag, dial, panels, drops, paste, tray, shortcuts

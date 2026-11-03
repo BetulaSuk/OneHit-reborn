@@ -607,6 +607,7 @@ class _OneHitShellState extends State<OneHitShell> implements ShellActions {
                         actions: this,
                         selectedId: _selectedId,
                         dropTarget: _dropTarget,
+                        covered: dial != null,
                       )
                     : MiniWindow(
                         key: _mini,

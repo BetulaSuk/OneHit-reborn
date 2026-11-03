@@ -16,7 +16,7 @@ class PrefixHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 240 * OH.scale,
+      width: 300 * OH.scale,
       padding: const EdgeInsets.all(OH.unit * 4),
       decoration: panelDecoration,
       child: Column(

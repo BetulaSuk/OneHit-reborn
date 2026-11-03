@@ -165,6 +165,7 @@ class _TimeDialState extends State<TimeDial> {
             const SizedBox(height: OH.unit * 3),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _Digits(
                   value: m ~/ 60,
@@ -172,7 +173,12 @@ class _TimeDialState extends State<TimeDial> {
                   onStep: (s) => _add(60.0 * s),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: OH.unit),
+                  padding: const EdgeInsets.fromLTRB(
+                    OH.unit,
+                    OH.unit,
+                    OH.unit,
+                    0,
+                  ),
                   child: Text(':', style: _digitStyle),
                 ),
                 _Digits(
@@ -279,9 +285,24 @@ class _DigitsState extends State<_Digits> {
                 color: _hover ? OH.discFill : Colors.transparent,
                 borderRadius: BorderRadius.circular(OH.unit * 3),
               ),
-              child: Text(
-                widget.value.toString().padLeft(2, '0'),
-                style: _digitStyle,
+              // The unit sits under the digits: the strip reads mm:ss, so
+              // a bare 00:19 here would read as nineteen seconds.
+              child: Column(
+                children: [
+                  Text(
+                    widget.value.toString().padLeft(2, '0'),
+                    style: _digitStyle,
+                  ),
+                  ExcludeSemantics(
+                    child: Text(
+                      widget.label,
+                      style: OH.itemText.copyWith(
+                        fontSize: OH.userSize - 3,
+                        color: OH.inkSoft,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

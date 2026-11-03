@@ -283,7 +283,17 @@ class _SettingsPanelState extends State<SettingsPanel> {
                 ),
               ),
               const SizedBox(height: OH.unit * 3),
-              Center(
+              // A white strip on the white panel would lose its edges; the
+              // grey well stands in for the desktop it sits on.
+              Container(
+                padding: const EdgeInsets.all(OH.unit * 2),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: OH.discFill,
+                  borderRadius: BorderRadius.circular(
+                    OH.radius + OH.unit * 2,
+                  ),
+                ),
                 child: InfoItemView(
                   item:
                       widget.store.pinned ??

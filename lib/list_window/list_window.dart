@@ -26,6 +26,7 @@ class ListWindow extends StatefulWidget {
     required this.actions,
     this.selectedId,
     this.dropTarget,
+    this.covered = false,
   });
 
   static double get header => 44 * OH.scale;
@@ -42,6 +43,10 @@ class ListWindow extends StatefulWidget {
   final ShellActions actions;
   final String? selectedId;
   final String? dropTarget;
+
+  /// The time dial opens where the side editor sits; the editor steps
+  /// aside until it closes.
+  final bool covered;
 
   @override
   State<ListWindow> createState() => _ListWindowState();
@@ -290,6 +295,7 @@ class _ListWindowState extends State<ListWindow> {
       return const SizedBox.shrink();
     }
     final item = items[index];
+    if (widget.covered) return const SizedBox.shrink();
     final rect = widget.rect;
     final bodyTop = rect.top + ListWindow.header;
     return AnimatedBuilder(

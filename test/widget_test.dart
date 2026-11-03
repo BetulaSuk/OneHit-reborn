@@ -55,6 +55,29 @@ void main() {
     store.dispose();
   });
 
+  test('the clock only notifies while a countdown runs', () {
+    final paused = InfoItem(
+      id: 'p',
+      text: 'p',
+      time: TimeTag(
+        kind: TimeKind.reminder,
+        remaining: const Duration(hours: 1),
+        running: false,
+      ),
+    );
+    final store = ItemStore([InfoItem(id: 'a', text: 'a'), paused]);
+    var calls = 0;
+    store.addListener(() => calls++);
+    store.tick();
+    expect(calls, 0);
+
+    store.toggleTime(paused);
+    expect(calls, 1);
+    store.tick();
+    expect(calls, 2);
+    store.dispose();
+  });
+
   test('formats remaining time', () {
     expect(formatRemaining(const Duration(minutes: 42, seconds: 8)), '42:08');
     expect(formatRemaining(const Duration(hours: 1, minutes: 5)), '1:05:00');

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -63,6 +66,7 @@ Future<void> main() async {
     // Dropping the frame can shift the bounds, so place it again.
     await native.placeOn(config.value.display);
     await windowManager.show();
+    _settle();
   });
 
   runApp(
@@ -135,4 +139,15 @@ class _TextSize extends StatelessWidget {
     element.markNeedsBuild();
     element.visitChildren(_rebuildAll);
   }
+}
+
+/// The engine collects garbage in the idle time after a frame, and an idle
+/// strip draws no frames. A short run of empty frames once startup is done
+/// lets it drop the ~250MB that loading leaves committed.
+void _settle() {
+  var left = 20;
+  Timer.periodic(const Duration(milliseconds: 250), (timer) {
+    SchedulerBinding.instance.scheduleFrame();
+    if (--left == 0) timer.cancel();
+  });
 }

@@ -61,14 +61,22 @@ class ItemStore extends ChangeNotifier {
     for (final i in _items) i.toJson(DateTime.now()),
   ];
 
+  /// The clock. It only notifies while a countdown runs: otherwise nothing
+  /// on screen changes, and an idle overlay should not repaint every second.
   void tick() {
+    final live = _items.any((i) => i.time?.state(now) == TimeState.running);
+    _refresh();
+    if (live) notifyListeners();
+  }
+
+  void _refresh() {
     now = DateTime.now();
     _apply(now);
-    notifyListeners();
   }
 
   void _changed() {
-    tick();
+    _refresh();
+    notifyListeners();
     onSave?.call(this);
   }
 

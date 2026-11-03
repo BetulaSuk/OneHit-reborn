@@ -194,7 +194,7 @@ class _TimeDialState extends State<TimeDial> {
                   TextButton(
                     onPressed: widget.onRemove,
                     style: _flat,
-                    child: Text(strings.removeTime),
+                    child: Text(strings.removeCountdown),
                   ),
                 const Spacer(),
                 TextButton(
@@ -211,7 +211,7 @@ class _TimeDialState extends State<TimeDial> {
                     textStyle: OH.itemText,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
-                  child: Text(strings.ok),
+                  child: Text(strings.setTime),
                 ),
               ],
             ),

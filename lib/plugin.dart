@@ -70,17 +70,17 @@ List<TagZone> builtInZones() => [
   ),
   TagZone(
     id: 'time',
-    label: strings.time,
+    label: strings.countdown,
     icon: Icons.timer_rounded,
     square: true,
-    activeLabel: (_) => strings.time,
+    activeLabel: (_) => strings.countdown,
     onDrop: (c) => c.openTimeDial(),
   ),
   TagZone(
     id: 'detail',
-    label: strings.detail,
+    label: strings.expand,
     icon: Icons.unfold_more_rounded,
-    activeLabel: (item) => item.detail ? strings.undetail : strings.detail,
+    activeLabel: (item) => item.detail ? strings.collapse : strings.expand,
     onDrop: (c) => c.store.setDetail(c.item, !c.item.detail),
   ),
 ];

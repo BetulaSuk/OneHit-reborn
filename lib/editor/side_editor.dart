@@ -166,7 +166,7 @@ class _SideEditorState extends State<SideEditor> {
                   onTap: () => store.setSunk(item, !item.sunk),
                 ),
                 PillToggle(
-                  label: strings.detail,
+                  label: strings.expand,
                   icon: Icons.unfold_more_rounded,
                   on: item.detail,
                   onTap: () => store.setDetail(item, !item.detail),
@@ -212,7 +212,7 @@ class _TimeRow extends StatelessWidget {
       return Align(
         alignment: Alignment.centerLeft,
         child: PillToggle(
-          label: strings.time,
+          label: strings.addCountdown,
           icon: Icons.timer_outlined,
           on: false,
           role: PillRole.action,
@@ -255,12 +255,12 @@ class _TimeRow extends StatelessWidget {
               ),
             RoundIconButton(
               icon: Icons.tune_rounded,
-              label: strings.adjustTime,
+              label: strings.changeCountdown,
               onTap: onDial,
             ),
             RoundIconButton(
               icon: Icons.close_rounded,
-              label: strings.removeTime,
+              label: strings.removeCountdown,
               onTap: () => store.clearTime(item),
             ),
           ],
@@ -320,8 +320,8 @@ class KindSwitch extends StatelessWidget {
       ),
       child: Row(
         children: [
-          option(TimeKind.reminder, 'Reminder', strings.reminderNote),
-          option(TimeKind.timer, 'Timer', strings.timerNote),
+          option(TimeKind.reminder, strings.reminder, strings.reminderNote),
+          option(TimeKind.timer, strings.timer, strings.timerNote),
         ],
       ),
     );

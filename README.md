@@ -48,8 +48,8 @@ Everything in [`docs/top-idea.md`](docs/top-idea.md) is built.
 | List | Double click or right click an item | Opens the side editor beside its row: text, icon palette, tags, delete. It follows the row and closes for good once the row scrolls out of view |
 | Strip or list | Long press and drag an item | The window dims and tag zones appear around it; drop on one to apply it |
 | Tag: Sink / Float | Drop | Sinks the item to the bottom (dimmed, timer paused), or floats it back |
-| Tag: Time | Drop | Opens the ring dial: drag the knob, scroll the ring (±5 min), hours (±1 h) or minutes (±1 min); one lap per hour, up to 12 h; Reminder or Timer |
-| Tag: Detail | Drop | The pinned strip grows a detail card with the full text (raised to fit when the strip is near the bottom, as is the inline editor) |
+| Tag: Countdown | Drop | Opens the ring dial: drag the knob, scroll the ring (±5 min), hours (±1 h) or minutes (±1 min); one lap per hour, up to 12 h; Reminder or Timer |
+| Tag: Expand / Collapse | Drop | The pinned strip grows a detail card with the full text (raised to fit when the strip is near the bottom, as is the inline editor) |
 | Any item | Drop an image file or image URL on it | It becomes the item's icon (centre-cropped to 128 px) |
 | Any item | Drop or paste text | Appended to the item's text (with nothing selected, a paste creates a new item) |
 | Window | Paste an image (Ctrl+V) | Replaces the selected item's icon |
@@ -115,8 +115,8 @@ once and are saved.
   swaps them.
 - **Text:** the font (any installed family, searchable) and size (12–20),
   with a live preview.
-- **Floating window:** rows shown each way on hover, the detail card's
-  height, and start with Windows.
+- **Strip:** how many rows the hover preview shows before and after, the
+  expanded height, and start with Windows.
 
 <br clear="right">
 

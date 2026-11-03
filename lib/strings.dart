@@ -28,7 +28,7 @@ class Strings {
   // Shared
   String get close => pick('关闭', 'Close');
   String get cancel => pick('取消', 'Cancel');
-  String get ok => pick('确定', 'OK');
+  String get setTime => pick('设定', 'Set');
   String get emptyItem => pick('空白信息', 'Empty item');
   String get writeSomething => pick('写点什么', 'Write something');
   String get newItem => pick('新建信息', 'New item');
@@ -64,9 +64,10 @@ class Strings {
   // Tags
   String get sink => pick('下沉', 'Sink');
   String get float => pick('上浮', 'Float');
-  String get time => pick('时间', 'Time');
-  String get detail => pick('详细', 'Detail');
-  String get undetail => pick('取消详细', 'No detail');
+  String get countdown => pick('倒计时', 'Countdown');
+  String get addCountdown => pick('添加倒计时', 'Add countdown');
+  String get expand => pick('展开', 'Expand');
+  String get collapse => pick('收起', 'Collapse');
   String get setCountdown => pick('设定倒计时', 'Set countdown');
   String get changeCountdown => pick('重新调整', 'Change countdown');
 
@@ -74,7 +75,7 @@ class Strings {
   String laps(int n) => pick('$n 圈', n == 1 ? '1 lap' : '$n laps');
   String get hours => pick('小时', 'Hours');
   String get minutes => pick('分钟', 'Minutes');
-  String get removeTime => pick('移除时间', 'Remove time');
+  String get removeCountdown => pick('移除倒计时', 'Remove countdown');
 
   // Side editor
   String get editItem => pick('编辑信息', 'Edit item');
@@ -103,8 +104,8 @@ class Strings {
   };
   String get removeImage => pick('移除图片', 'Remove image');
   String get iconHint => pick(
-    '拖入图片文件或链接、或选中后粘贴图片，即可设为图标',
-    'Drop an image file or link, or select the item and paste an image, to make it the icon',
+    '拖入图片或图片链接，或按 Ctrl+V 粘贴图片，即可设为图标',
+    'Drop an image or image link, or paste one with Ctrl+V, to use it as the icon',
   );
   String get tags => pick('标签', 'Tags');
   String get deleteItem => pick('删除这条信息', 'Delete this item');
@@ -114,7 +115,8 @@ class Strings {
   String get ended => pick('已结束', 'Ended');
   String get pause => pick('暂停', 'Pause');
   String get resume => pick('继续', 'Resume');
-  String get adjustTime => pick('调整时间', 'Adjust time');
+  String get reminder => pick('提醒', 'Reminder');
+  String get timer => pick('计时器', 'Timer');
   String get reminderNote =>
       pick('一直计时，结束时浮出提醒', 'Always runs, and pops up when it ends');
   String get timerNote =>
@@ -132,10 +134,10 @@ class Strings {
     Command.toggle => pick('显示或隐藏浮窗', 'Show or hide OneHit'),
     Command.list => pick('打开或关闭列表', 'Open or close the list'),
     Command.create => pick('新建信息', 'New item'),
-    Command.edit => pick('编辑当前信息', 'Edit the pinned item'),
-    Command.paste => pick('剪贴板存为新信息', 'Clipboard as a new item'),
-    Command.time => pick('给当前信息定时', 'Time the pinned item'),
-    Command.pause => pick('暂停或继续计时', 'Pause or resume'),
+    Command.edit => pick('编辑当前信息', 'Edit the current item'),
+    Command.paste => pick('用剪贴板新建信息', 'New item from the clipboard'),
+    Command.time => pick('给当前信息设倒计时', 'Countdown for the current item'),
+    Command.pause => pick('暂停或继续倒计时', 'Pause or resume the countdown'),
     Command.next => pick('下一条信息', 'Next item'),
     Command.previous => pick('上一条信息', 'Previous item'),
     Command.settings => pick('打开设置', 'Open settings'),
@@ -164,7 +166,7 @@ class Strings {
   // Settings
   String get settings => pick('设置', 'Settings');
   String get language => pick('语言', 'Language');
-  String get display => pick('显示屏', 'Display');
+  String get display => pick('显示器', 'Display');
   String monitor(String n) => pick('显示器 $n', 'Monitor $n');
   String get primary => pick('主屏', 'primary');
   String get prefix => pick('前缀键', 'Prefix');
@@ -177,8 +179,8 @@ class Strings {
   String get prefixHow =>
       pick('先按前缀键，再按下面的一个键', 'Press the prefix, then one of the keys below');
   String get prefixTaken => pick(
-    '这个组合键被其他程序占用了，换一个吧',
-    'Another app holds this combination; record a different one',
+    '这个组合键已被其他程序占用，请换一个',
+    'Another app already uses this combination. Press a different one.',
   );
   String get text => pick('文字', 'Text');
   String get font => pick('字体', 'Font');
@@ -188,9 +190,9 @@ class Strings {
   String get defaultShort => pick('默认', 'Default');
   String get searchFonts => pick('搜索字体', 'Search fonts');
   String get loadingFonts => pick('正在读取字体…', 'Loading fonts…');
-  String get window => pick('浮窗', 'Floating window');
-  String get onHover => pick('悬停时显示', 'Shown on hover');
-  String eachWay(int n) => pick('前后各 $n 条', '$n each way');
-  String get detailHeight => pick('详细信息高度', 'Detail card height');
+  String get window => pick('浮窗', 'Strip');
+  String get onHover => pick('悬停预览', 'Preview on hover');
+  String eachWay(int n) => pick('前后各 $n 条', '$n before and after');
+  String get detailHeight => pick('展开高度', 'Expanded height');
   String get startWithWindows => pick('开机时启动', 'Start with Windows');
 }

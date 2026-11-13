@@ -112,6 +112,7 @@ OneHit 在通知区域里（Windows 可能先把它收在 `^` 后面的隐藏图
   选了别的动作正在用的键时，两者互换。
 - **文字：** 字体（任意已安装字体，可搜索）和字号（12–20），带实时预览。
 - **浮窗：** 悬停预览前后各显示几条、展开高度、开机时启动。
+- **自动化：** 允许这台电脑上的脚本和 AI 助手连接（默认关闭）。
 
 <br clear="right">
 
@@ -122,6 +123,7 @@ OneHit 在通知区域里（Windows 可能先把它收在 `^` 后面的隐藏图
 - `items.json`：所有信息，包括图标和倒计时状态。
 - `state.json`：浮窗上次的位置。
 - `config.json`：设置面板写入的内容。也可以手动编辑，改完重启 OneHit。
+- `api.json`：本地 API 开启时的端口和令牌。
 
 | 键 | 默认值 | 含义 |
 | --- | --- | --- |
@@ -133,11 +135,25 @@ OneHit 在通知区域里（Windows 可能先把它收在 `^` 后面的隐藏图
 | `fontFamily` | `""` | 字体名；为空表示 Segoe UI Variable Display |
 | `fontSize` | `15` | 信息文字字号（12–20）；时间大三分之一 |
 | `language` | `""` | `"zh"` 或 `"en"`；为空跟随 Windows 显示语言 |
+| `apiEnabled` | `false` | 为脚本和 AI 助手提供本地 API |
 
 键名包括 `a`–`z`、`0`–`9`、`f1`–`f12`、`space`、`enter`、`tab`、`backspace`、
 `insert`、`delete`、`home`、`end`、`pageup`、`pagedown`、`left`、`up`、`right`、
 `down`，以及 `` ` - = [ ] \ ; ' , . / ``。无效的值会回退到默认值。删除数据文件即可再次看到
 首次运行的提示（按当时的语言写入）。
+
+### API 与 MCP
+
+这台电脑上的脚本和 AI 助手可以通过本地 HTTP API 读取和修改信息，也可以通过 MCP
+服务器（`onehit-mcp.exe`，与 `onehit.exe` 在同一目录）连接，任何 MCP 客户端都能运行它。
+在设置 → 自动化中开启后，把它添加到客户端：
+
+```powershell
+claude mcp add onehit -- "C:\path\to\OneHit\onehit-mcp.exe"
+```
+
+新建的信息排在其他信息之后，不会占用浮窗。工具、接口和设计说明见
+[`docs/api.md`](docs/api.md)（英文）。
 
 ### 插件
 
@@ -175,6 +191,7 @@ flutter build windows --release
 ## 文档
 
 - [`docs/top-idea.md`](docs/top-idea.md)：最初的产品设想。
+- [`docs/api.md`](docs/api.md)：本地 API 与 MCP 服务器的配置、参考和设计决策（英文）。
 - [`PRODUCT.md`](PRODUCT.md)：用户、目的、约束、待定问题和原则（英文）。
 - [`DESIGN.md`](DESIGN.md)：设计系统“The Unrolled Ring”：颜色、字体、布局、组件和规则（英文）。
   机器可读版本是 [`.impeccable/design.json`](.impeccable/design.json)。

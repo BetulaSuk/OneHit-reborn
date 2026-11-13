@@ -106,3 +106,26 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# The MCP bridge ships next to the exe in release builds (see docs/api.md).
+get_directory_property(DART_FLUTTER_ROOT DIRECTORY "${FLUTTER_MANAGED_DIR}"
+  DEFINITION FLUTTER_ROOT)
+install(CODE "
+  if(CMAKE_INSTALL_CONFIG_NAME STREQUAL \"Release\")
+    execute_process(
+      COMMAND \"${DART_FLUTTER_ROOT}/bin/cache/dart-sdk/bin/dart.exe\" pub get
+      WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}/../mcp\"
+      RESULT_VARIABLE MCP_RESULT)
+    if(NOT MCP_RESULT EQUAL 0)
+      message(FATAL_ERROR \"Could not resolve the MCP bridge: \${MCP_RESULT}\")
+    endif()
+    execute_process(
+      COMMAND \"${DART_FLUTTER_ROOT}/bin/cache/dart-sdk/bin/dart.exe\" compile exe
+        bin/onehit_mcp.dart -o \"${CMAKE_INSTALL_PREFIX}/onehit-mcp.exe\"
+      WORKING_DIRECTORY \"${CMAKE_CURRENT_SOURCE_DIR}/../mcp\"
+      RESULT_VARIABLE MCP_RESULT)
+    if(NOT MCP_RESULT EQUAL 0)
+      message(FATAL_ERROR \"Could not build onehit-mcp.exe: \${MCP_RESULT}\")
+    endif()
+  endif()
+  " COMPONENT Runtime)

@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'api/api_server.dart';
 import 'config.dart';
 import 'item/item_store.dart';
 import 'item/storage.dart';
@@ -30,6 +31,11 @@ Future<void> main() async {
   for (final p in plugins) {
     p.attach(store);
   }
+
+  final api = ApiServer(store, storage.apiInfo);
+  void syncApi() => api.setEnabled(config.value.apiEnabled);
+  config.addListener(syncApi);
+  syncApi();
 
   // The window covers the chosen display's work area (not the whole
   // monitor, so Windows never treats it as a fullscreen app). Only the

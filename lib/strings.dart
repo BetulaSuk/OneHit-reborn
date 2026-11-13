@@ -195,4 +195,11 @@ class Strings {
   String eachWay(int n) => pick('前后各 $n 条', '$n before and after');
   String get detailHeight => pick('展开高度', 'Expanded height');
   String get startWithWindows => pick('开机时启动', 'Start with Windows');
+  String get automation => pick('自动化', 'Automation');
+  String get allowApi => pick('允许连接', 'Allow connections');
+  String get allowApiHint => pick(
+    '开启后，这台电脑上的脚本、AI 助手和其他程序可以读取和修改你的信息。',
+    'While on, scripts, AI agents and other programs on this computer can read '
+        'and change your items.',
+  );
 }

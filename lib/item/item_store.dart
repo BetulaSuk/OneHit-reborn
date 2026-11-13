@@ -82,13 +82,27 @@ class ItemStore extends ChangeNotifier {
 
   /// A new empty item at the top, so the minimal window shows it.
   InfoItem create() {
-    final item = InfoItem(
-      id: DateTime.now().microsecondsSinceEpoch.toRadixString(36),
-      text: '',
-    );
+    final item = InfoItem(id: _newId(), text: '');
     _items.insert(0, item);
     _changed();
     return item;
+  }
+
+  /// A new item after the others, leaving the strip as it is.
+  InfoItem add(String text) {
+    final item = InfoItem(id: _newId(), text: text);
+    _items.add(item);
+    _changed();
+    return item;
+  }
+
+  /// The clock can repeat within a burst of API calls, so a taken id moves on.
+  String _newId() {
+    var stamp = DateTime.now().microsecondsSinceEpoch;
+    while (byId(stamp.toRadixString(36)) != null) {
+      stamp++;
+    }
+    return stamp.toRadixString(36);
   }
 
   void remove(InfoItem item) {

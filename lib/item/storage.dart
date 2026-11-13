@@ -22,6 +22,9 @@ class Storage {
   File get _state => File('${dir.path}${Platform.pathSeparator}state.json');
   File get config => File('${dir.path}${Platform.pathSeparator}config.json');
 
+  /// Where the local API publishes its port and token.
+  File get apiInfo => File('${dir.path}${Platform.pathSeparator}api.json');
+
   /// Saved items, or the first-run tips when nothing has been saved yet.
   Future<List<InfoItem>> loadItems() async {
     try {

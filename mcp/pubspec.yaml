@@ -1,0 +1,9 @@
+# The MCP bridge (see docs/api.md). Its own package because `dart compile`
+# refuses a package whose dependencies have build hooks, as the app's do.
+name: onehit_mcp
+description: "The MCP server for OneHit: a stdio bridge to the app's local API."
+publish_to: 'none'
+version: 1.1.0
+
+environment:
+  sdk: ^3.13.5

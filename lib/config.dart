@@ -41,6 +41,7 @@ class OneHitConfig {
     this.fontFamily = '',
     this.fontSize = 15,
     this.language = '',
+    this.apiEnabled = false,
   });
 
   /// Rows shown around the strip while hovering. 2 means at most five
@@ -65,6 +66,10 @@ class OneHitConfig {
 
   /// `zh`, `en`, or empty to follow Windows.
   final String language;
+
+  /// Serves the local API (see `docs/api.md`). Off until the user asks: most
+  /// people have no use for an open port.
+  final bool apiEnabled;
 
   String keyFor(Command c) => keys[c] ?? c.defaultKey;
 
@@ -95,6 +100,7 @@ class OneHitConfig {
     String? fontFamily,
     double? fontSize,
     String? language,
+    bool? apiEnabled,
   }) => OneHitConfig(
     previewRadius: previewRadius ?? this.previewRadius,
     detailHeight: detailHeight ?? this.detailHeight,
@@ -104,6 +110,7 @@ class OneHitConfig {
     fontFamily: fontFamily ?? this.fontFamily,
     fontSize: fontSize ?? this.fontSize,
     language: language ?? this.language,
+    apiEnabled: apiEnabled ?? this.apiEnabled,
   );
 
   Map<String, Object?> toJson() => {
@@ -115,6 +122,7 @@ class OneHitConfig {
     'fontFamily': fontFamily,
     'fontSize': fontSize,
     'language': language,
+    'apiEnabled': apiEnabled,
   };
 
   factory OneHitConfig.fromJson(Map<String, Object?> json) {
@@ -148,6 +156,7 @@ class OneHitConfig {
         'en' => 'en',
         _ => '',
       },
+      apiEnabled: pick('apiEnabled', d.apiEnabled),
     );
   }
 

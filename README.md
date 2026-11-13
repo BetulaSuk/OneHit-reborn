@@ -135,6 +135,8 @@ once and are saved.
   with a live preview.
 - **Strip:** how many rows the hover preview shows before and after, the
   expanded height, and start with Windows.
+- **Automation:** let scripts and AI agents on this computer connect (off by
+  default).
 
 <br clear="right">
 
@@ -146,6 +148,7 @@ Saved under `%APPDATA%\dev.onehit\onehit\`:
 - `state.json`: the strip's last position.
 - `config.json`: what the settings panel writes. Editing it by hand works
   too; restart OneHit afterwards.
+- `api.json`: the local API's port and token, while the API is on.
 
 | Key | Default | Meaning |
 | --- | --- | --- |
@@ -157,12 +160,27 @@ Saved under `%APPDATA%\dev.onehit\onehit\`:
 | `fontFamily` | `""` | Font family; empty means Segoe UI Variable Display |
 | `fontSize` | `15` | Item text size (12–20); the time is a third larger |
 | `language` | `""` | `"zh"` or `"en"`; empty follows the Windows display language |
+| `apiEnabled` | `false` | Serve the local API for scripts and AI agents |
 
 Key names are `a`–`z`, `0`–`9`, `f1`–`f12`, `space`, `enter`, `tab`,
 `backspace`, `insert`, `delete`, `home`, `end`, `pageup`, `pagedown`, `left`,
 `up`, `right`, `down`, and `` ` - = [ ] \ ; ' , . / ``. Bad values fall back to
 the defaults. Delete the data files to see the first-run tips again (they are
 written in the language in effect).
+
+### API and MCP
+
+Scripts and AI agents on this computer can read and change items through a
+local HTTP API, or through an MCP server (`onehit-mcp.exe`, next to
+`onehit.exe`) that any MCP client can run. Turn it on under Settings →
+Automation, then add it to your client:
+
+```powershell
+claude mcp add onehit -- "C:\path\to\OneHit\onehit-mcp.exe"
+```
+
+New items wait behind the others rather than taking over the strip. See
+[`docs/api.md`](docs/api.md) for the tools, routes and design.
 
 ### Plugins
 
@@ -202,6 +220,8 @@ lib/
   config.dart                   config.json options, shortcut actions, ConfigStore
   strings.dart                  every piece of UI text, in Chinese and English
   plugin.dart                   OneHitPlugin, TagZone, built-in tags
+  api/item_api.dart             the local API's routes and validation
+  api/api_server.dart           its HTTP server: loopback, token, who may call
   theme/tokens.dart             design tokens: geometry, state colours, type, motion
   theme/controls.dart           panel surface and controls shared by the editor and settings
   item/                         the item component, independent of the windows
@@ -225,15 +245,17 @@ lib/
   editor/side_editor.dart       the side editor
   tags/tag_layer.dart           tag zones and the dragged item
   tags/time_dial.dart           the ring dial
+mcp/bin/onehit_mcp.dart         the MCP server: a stdio bridge to the local API (its own package)
 windows/runner/native_bridge.*  click region, OLE drop target, tray icon, prefix hotkey and keyboard hook,
                                 display placement and DPI, font list, start with Windows
-test/                           countdown rules, JSON, store, config, key bindings, zone layout, editor keys
+test/                           countdown rules, JSON, store, config, key bindings, zone layout, editor keys, API, MCP
 docs/assets/                    the icon and the README screenshots (en/, zh/)
 ```
 
 ## Docs
 
 - [`docs/top-idea.md`](docs/top-idea.md): the original product concept (Chinese).
+- [`docs/api.md`](docs/api.md): the local API and MCP server: setup, reference, and design decisions.
 - [`PRODUCT.md`](PRODUCT.md): users, purpose, constraints, open questions, principles.
 - [`DESIGN.md`](DESIGN.md): the design system ("The Unrolled Ring"): colours, type,
   layout, components, and rules. Its machine-readable sidecar is

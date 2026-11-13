@@ -8,8 +8,11 @@ import 'package:onehit/item/info_item_view.dart';
 import 'package:onehit/item/item_gestures.dart';
 import 'package:onehit/item/item_store.dart';
 import 'package:onehit/plugin.dart';
+import 'package:onehit/settings/settings_panel.dart';
 import 'package:onehit/shell/keys.dart';
+import 'package:onehit/shell/native.dart';
 import 'package:onehit/shell/scroll_steps.dart';
+import 'package:onehit/strings.dart';
 import 'package:onehit/tags/tag_layer.dart';
 import 'package:onehit/theme/controls.dart';
 import 'package:onehit/theme/tokens.dart';
@@ -216,6 +219,53 @@ void main() {
     expect(store.byId('c'), isNotNull);
     store.dispose();
   });
+
+  for (final language in ['zh', 'en']) {
+    testWidgets('settings switch the API on and off ($language)', (
+      tester,
+    ) async {
+      addTearDown(() => strings = Strings.of(''));
+      strings = Strings.of(language);
+      final saved = <OneHitConfig>[];
+      final config = ConfigStore(const OneHitConfig(), onSave: saved.add);
+      final store = ItemStore([InfoItem(id: 'a', text: 'a')]);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: Center(
+              child: SizedBox(
+                height: 500,
+                child: SettingsPanel(
+                  config: config,
+                  native: NativeBridge(),
+                  store: store,
+                  prefixFree: true,
+                  onRecordPrefix: (_) {},
+                  onClose: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final toggle = find.text(strings.allowApi);
+      await tester.ensureVisible(toggle);
+      await tester.pumpAndSettle();
+      expect(find.text(strings.allowApiHint), findsOneWidget);
+
+      await tester.tap(toggle);
+      await tester.pump();
+      expect(config.value.apiEnabled, isTrue);
+      expect(saved.single.apiEnabled, isTrue);
+
+      await tester.tap(toggle);
+      await tester.pump();
+      expect(config.value.apiEnabled, isFalse);
+      store.dispose();
+    });
+  }
 
   test('strip geometry grows with Windows text size', () {
     addTearDown(() => OH.scale = 1);
